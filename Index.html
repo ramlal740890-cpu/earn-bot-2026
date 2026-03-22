@@ -3,66 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trendmansun Earning Dashboard</title>
+    <title>TrendBot Dashboard</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background: #0f172a; color: white; font-family: 'Poppins', sans-serif; }
-        .card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .gradient-text { background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        body { background-color: #0f172a; color: white; font-family: 'Segoe UI', Roboto, sans-serif; }
+        .card-bg { background: #1e293b; border-radius: 1.5rem; }
+        .stat-card { background: #111827; border-radius: 1.25rem; }
+        .btn-green { background: linear-gradient(90deg, #10b981, #34d399); }
+        .play-btn { border: 1px solid #ef4444; color: white; }
+        .hidden { display: none; }
     </style>
 </head>
 <body class="p-4">
 
-    <div class="text-center mb-8 mt-4">
-        <h1 class="text-3xl font-bold gradient-text">🔥 TRANDMANSUN 🔥</h1>
-        <p class="text-gray-400 text-sm mt-1">Aapka Safar Amiri Ki Taraf...</p>
-    </div>
-
-    <div class="card rounded-2xl p-6 mb-6 shadow-xl">
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-semibold"><i class="fas fa-wallet mr-2 text-yellow-400"></i> My Balance</h2>
-            <span id="user-balance" class="text-2xl font-bold text-green-400">0.00 Coins</span>
-        </div>
-        <div class="grid grid-cols-2 gap-4">
-            <div class="bg-slate-800/50 p-3 rounded-xl text-center">
-                <p class="text-xs text-gray-400">Total Refers</p>
-                <p id="total-refers" class="font-bold text-blue-400">0</p>
+    <div class="card-bg p-4 flex items-center justify-between mb-4">
+        <div class="flex items-center space-x-4">
+            <div class="relative w-16 h-16 bg-cyan-400 rounded-full flex items-center justify-center text-white text-2xl font-bold border-4 border-slate-700">
+                TK
+                <div class="absolute bottom-0 right-0 bg-cyan-500 p-1 rounded-full border-2 border-slate-800">
+                    <i class="fas fa-camera text-[10px]"></i>
+                </div>
             </div>
-            <div class="bg-slate-800/50 p-3 rounded-xl text-center">
-                <p class="text-xs text-gray-400">User ID</p>
-                <p id="user-id" class="font-mono text-[10px] text-gray-300">8711347335</p>
+            <div>
+                <h2 id="user-name" class="text-lg font-bold">Trendmansun Kumar</h2>
+                <p class="text-xs text-gray-500">Joined: 18/3/2026</p>
             </div>
         </div>
+        <i class="fas fa-crown text-cyan-400 text-xl"></i>
     </div>
 
-    <div class="space-y-4">
-        <button onclick="window.location.href='https://horizontallyresearchpolar.com/r0wbx3kyf?key=8b0a2298684c7cea730312add326101b'" 
-                class="w-full bg-indigo-600 hover:bg-indigo-700 py-4 rounded-xl font-bold flex items-center justify-center transition-all">
-            <i class="fas fa-play-circle mr-2"></i> Watch Video & Earn (20 Coins)
-        </button>
+    <div class="play-btn rounded-xl py-4 flex items-center justify-center space-x-3 mb-6 cursor-pointer" onclick="startAdTask()">
+        <i class="fas fa-play-circle text-blue-500 text-2xl"></i>
+        <span class="font-bold text-lg">Home Videos</span>
+    </div>
 
-        <button onclick="alert('Refer Link Copied!')" 
-                class="w-full bg-slate-800 border border-slate-700 py-4 rounded-xl font-bold flex items-center justify-center">
-            <i class="fas fa-user-plus mr-2"></i> Invite Friends (50 Coins)
+    <div id="adOverlay" class="fixed inset-0 bg-black/90 z-50 flex flex-col items-center justify-center hidden">
+        <iframe id="adFrame" src="" class="w-full h-64 mb-4 border-none"></iframe>
+        <p class="text-yellow-400 text-4xl font-black mb-2" id="timer">15</p>
+        <p class="text-gray-400 text-xs tracking-widest uppercase">Watching Ad for Points...</p>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="stat-card p-6 flex flex-col items-center justify-center">
+            <i class="fas fa-wallet text-cyan-400 text-3xl mb-3"></i>
+            <span id="balance" class="text-3xl font-black text-white">0</span>
+            <span class="text-[10px] text-gray-500 uppercase font-bold mt-1">Your Points</span>
+        </div>
+        <div class="stat-card p-6 flex flex-col items-center justify-center">
+            <i class="fas fa-users text-cyan-400 text-3xl mb-3"></i>
+            <span id="refers" class="text-3xl font-black text-white">0</span>
+            <span class="text-[10px] text-gray-500 uppercase font-bold mt-1 text-center">Total Refers (50 Pts)</span>
+        </div>
+    </div>
+
+    <div class="card-bg p-6 mb-6">
+        <div class="flex items-center space-x-3 mb-2">
+            <i class="fas fa-calendar-check text-green-400 text-xl"></i>
+            <h3 class="text-lg font-bold">Daily Bonus (10 Points)</h3>
+        </div>
+        <p class="text-xs text-gray-500 mb-6">Claim once per day! points instantly added.</p>
+        <button onclick="sendAction('DAILY_CLAIM')" class="w-full btn-green py-4 rounded-2xl font-bold flex items-center justify-center space-x-2 shadow-lg shadow-green-900/20">
+            <i class="fas fa-gift"></i>
+            <span>Claim Daily 10 Points</span>
         </button>
     </div>
 
-    <div class="mt-10 p-4 border-t border-slate-800 text-center">
-        <p class="text-xs text-gray-500 mb-2">SPONSORED AD</p>
-        <a href="https://horizontallyresearchpolar.com/r0wbx3kyf?key=8b0a2298684c7cea730312add326101b" 
-           class="block card p-3 rounded-lg border-dashed border-indigo-500 text-indigo-400 font-bold">
-            💰 Click Here for Unlimited Bonus 💰
+    <div class="card-bg p-6 mb-20">
+        <div class="flex items-center space-x-3 mb-2">
+            <i class="fas fa-share-nodes text-cyan-400 text-xl"></i>
+            <h3 class="text-lg font-bold">Refer Friends (50 Points)</h3>
+        </div>
+        <p class="text-xs text-gray-500 mb-6 italic text-center leading-relaxed">
+            "Akela banda sirf mehnat karta hai, jo share karta hai wo raj karta hai! 👑"
+        </p>
+        <button onclick="shareBot()" class="w-full bg-slate-700 py-4 rounded-2xl font-bold text-sm">
+            Share & Refer Now
+        </button>
+    </div>
+
+    <div class="fixed bottom-0 left-0 w-full p-3 bg-slate-900/90 border-t border-slate-800">
+        <a href="https://horizontallyresearchpolar.com/r0wbx3kyf?key=8b0a2298684c7cea730312add326101b" class="block bg-blue-600 p-3 rounded-xl text-center text-xs font-bold">
+            🔥 CLICK FOR 100 BONUS COINS 🔥
         </a>
     </div>
 
-    <div class="fixed bottom-0 left-0 w-full bg-slate-900/90 backdrop-blur-md p-4 flex justify-around border-t border-slate-800">
-        <i class="fas fa-home text-indigo-400 text-xl"></i>
-        <i class="fas fa-tasks text-gray-500 text-xl"></i>
-        <i class="fas fa-money-bill-transfer text-gray-500 text-xl"></i>
-        <i class="fas fa-cog text-gray-500 text-xl"></i>
-    </div>
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        
+        // Load User Data
+        const user = tg.initDataUnsafe.user;
+        if(user) {
+            document.getElementById('user-name').innerText = user.first_name + " " + (user.last_name || "");
+        }
 
+        function startAdTask() {
+            const overlay = document.getElementById('adOverlay');
+            const frame = document.getElementById('adFrame');
+            const timerLabel = document.getElementById('timer');
+            
+            overlay.classList.remove('hidden');
+            frame.src = "https://horizontallyresearchpolar.com/r0wbx3kyf?key=8b0a2298684c7cea730312add326101b";
+            
+            let sec = 15;
+            const countdown = setInterval(() => {
+                sec--;
+                timerLabel.innerText = sec;
+                if(sec <= 0) {
+                    clearInterval(countdown);
+                    sendAction('VIDEO_REWARD');
+                }
+            }, 1000);
+        }
+
+        function sendAction(type) {
+            tg.sendData(type);
+            tg.close();
+        }
+
+        function shareBot() {
+            const link = `https://t.me/Trendmansun_bot?start=${user.id}`;
+            const text = encodeURIComponent("Bhai! Maine sirf video dekh kar points kamaye hain. Tu bhi try kar! 💸\nLink: ");
+            window.open(`https://t.me/share/url?url=${link}&text=${text}`, "_blank");
+        }
+    </script>
 </body>
 </html>
-
