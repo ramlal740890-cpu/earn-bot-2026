@@ -1,13 +1,9 @@
 {
-  "name": "refer-earn-bot",
+  "name": "earn-bot-2026",
   "version": "1.0.0",
-  "description": "Telegram Refer & Earn Bot on Vercel",
   "main": "api/bot.js",
   "dependencies": {
-    "telegraf": "^4.12.2",
-    "firebase-admin": "^11.11.0"
-  },
-  "engines": {
-    "node": "18.x"
+    "telegraf": "^4.12.0",
+    "firebase-admin": "^11.5.0"
   }
 }
