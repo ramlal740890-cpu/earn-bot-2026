@@ -1,7 +1,7 @@
 {
   "name": "earn-bot-2026",
   "version": "2.0.0",
-  "description": "Professional Refer & Earn + Daily + Ad Bot",
+  "description": "Professional Refer & Earn Bot with Daily + Ad + Referral",
   "main": "api/bot.js",
   "scripts": {
     "dev": "node api/bot.js",
