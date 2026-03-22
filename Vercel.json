@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "name": "earn-bot-2026",
   "builds": [
     {
       "src": "api/bot.js",
@@ -11,20 +10,7 @@
     {
       "src": "/api/bot",
       "dest": "/api/bot.js",
-      "methods": ["GET", "POST"]
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/api/bot.js"
+      "methods": ["POST"]
     }
-  ],
-  "functions": {
-    "api/bot.js": {
-      "maxDuration": 30,
-      "memory": 512
-    }
-  },
-  "env": {
-    "NODE_ENV": "production"
-  }
+  ]
 }
