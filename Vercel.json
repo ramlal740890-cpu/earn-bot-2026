@@ -1,5 +1,30 @@
 {
   "version": 2,
-  "builds": [{ "src": "api/bot.js", "use": "@vercel/node" }],
-  "routes": [{ "src": "/(.*)", "dest": "api/bot.js" }]
+  "name": "earn-bot-2026",
+  "builds": [
+    {
+      "src": "api/bot.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/bot",
+      "dest": "/api/bot.js",
+      "methods": ["GET", "POST"]
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api/bot.js"
+    }
+  ],
+  "functions": {
+    "api/bot.js": {
+      "maxDuration": 30,
+      "memory": 512
+    }
+  },
+  "env": {
+    "NODE_ENV": "production"
+  }
 }
