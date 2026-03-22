@@ -3,159 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💰 User Dashboard | Earn Bot</title>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <title>Trendmansun Earning Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body {
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        .container {
-            max-width: 600px;
-            width: 100%;
-            background: rgba(255,255,255,0.95);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        h1, h2 { text-align: center; color: #1e3c72; margin-bottom: 20px; }
-        .login-section { text-align: center; margin-bottom: 30px; }
-        .dashboard { display: none; }
-        .stats-card {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .stats-card p { margin: 8px 0; font-size: 16px; }
-        .stats-card strong { color: #2a5298; }
-        .referral-link {
-            background: #e9ecef;
-            padding: 10px;
-            border-radius: 8px;
-            word-break: break-all;
-            font-family: monospace;
-        }
-        button, .back-btn {
-            background: #2a5298;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 10px;
-            transition: background 0.3s;
-            width: 100%;
-        }
-        button:hover { background: #1e3c72; }
-        .error { color: red; text-align: center; margin-top: 10px; }
+        body { background: #0f172a; color: white; font-family: 'Poppins', sans-serif; }
+        .card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .gradient-text { background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     </style>
 </head>
-<body>
-<div class="container">
-    <h1>💰 Earn Bot – User Dashboard</h1>
-    <div class="login-section" id="loginSection">
-        <p>Login with Telegram to view your stats</p>
-        <!-- Telegram Login Widget -->
-        <div id="telegram-login"></div>
+<body class="p-4">
+
+    <div class="text-center mb-8 mt-4">
+        <h1 class="text-3xl font-bold gradient-text">🔥 TRANDMANSUN 🔥</h1>
+        <p class="text-gray-400 text-sm mt-1">Aapka Safar Amiri Ki Taraf...</p>
     </div>
-    <div id="userDashboard" class="dashboard">
-        <h2>📊 Your Dashboard</h2>
-        <div id="userStats" class="stats-card">Loading...</div>
-        <div id="referralLink"></div>
-        <button class="back-btn" onclick="logout()">Logout</button>
+
+    <div class="card rounded-2xl p-6 mb-6 shadow-xl">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold"><i class="fas fa-wallet mr-2 text-yellow-400"></i> My Balance</h2>
+            <span id="user-balance" class="text-2xl font-bold text-green-400">0.00 Coins</span>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <div class="bg-slate-800/50 p-3 rounded-xl text-center">
+                <p class="text-xs text-gray-400">Total Refers</p>
+                <p id="total-refers" class="font-bold text-blue-400">0</p>
+            </div>
+            <div class="bg-slate-800/50 p-3 rounded-xl text-center">
+                <p class="text-xs text-gray-400">User ID</p>
+                <p id="user-id" class="font-mono text-[10px] text-gray-300">8711347335</p>
+            </div>
+        </div>
     </div>
-</div>
 
-<script>
-    // ====================== FIREBASE CLIENT CONFIG ======================
-    // 🔁 REPLACE WITH YOUR OWN FIREBASE WEB APP CONFIG (from Firebase Console)
-    const firebaseConfig = {
-        apiKey: "YOUR_API_KEY",
-        authDomain: "YOUR_PROJECT.firebaseapp.com",
-        projectId: "earn-bot-2026",
-        storageBucket: "YOUR_PROJECT.appspot.com",
-        messagingSenderId: "YOUR_SENDER_ID",
-        appId: "YOUR_APP_ID"
-    };
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    <div class="space-y-4">
+        <button onclick="window.location.href='https://horizontallyresearchpolar.com/r0wbx3kyf?key=8b0a2298684c7cea730312add326101b'" 
+                class="w-full bg-indigo-600 hover:bg-indigo-700 py-4 rounded-xl font-bold flex items-center justify-center transition-all">
+            <i class="fas fa-play-circle mr-2"></i> Watch Video & Earn (20 Coins)
+        </button>
 
-    // ====================== GLOBALS ======================
-    let currentUserId = null;
-    let currentUserData = null;
+        <button onclick="alert('Refer Link Copied!')" 
+                class="w-full bg-slate-800 border border-slate-700 py-4 rounded-xl font-bold flex items-center justify-center">
+            <i class="fas fa-user-plus mr-2"></i> Invite Friends (50 Coins)
+        </button>
+    </div>
 
-    // ====================== HELPER FUNCTIONS ======================
-    async function loadUserDashboard(userId) {
-        try {
-            const doc = await db.collection('users').doc(userId).get();
-            if (!doc.exists) {
-                document.getElementById('userStats').innerHTML = '<p class="error">❌ User not found. Please start the bot first: <a href="https://t.me/YourBotUsername">@YourBotUsername</a></p>';
-                return;
-            }
-            const data = doc.data();
-            currentUserData = data;
-            // Build stats HTML
-            const statsHtml = `
-                <p><strong>👤 Name:</strong> ${data.name || 'N/A'}</p>
-                <p><strong>💰 Balance:</strong> ${data.balance || 0} coins</p>
-                <p><strong>👥 Total Refers:</strong> ${data.totalRefers || 0}</p>
-                <p><strong>🆔 Telegram ID:</strong> ${userId}</p>
-            `;
-            document.getElementById('userStats').innerHTML = statsHtml;
-            // Build referral link
-            const botUsername = "YourBotUsername"; // 🔁 REPLACE WITH YOUR BOT'S USERNAME
-            const referralLink = `https://t.me/${botUsername}?start=ref_${userId}`;
-            document.getElementById('referralLink').innerHTML = `
-                <div class="stats-card">
-                    <p><strong>🔗 Your Referral Link:</strong></p>
-                    <div class="referral-link">${referralLink}</div>
-                    <p style="font-size: 14px; margin-top: 10px;">Share this link with friends – you get 50💰 per join!</p>
-                </div>
-            `;
-        } catch (error) {
-            console.error("Error loading user data:", error);
-            document.getElementById('userStats').innerHTML = '<p class="error">⚠️ Failed to load data. Check console.</p>';
-        }
-    }
+    <div class="mt-10 p-4 border-t border-slate-800 text-center">
+        <p class="text-xs text-gray-500 mb-2">SPONSORED AD</p>
+        <a href="https://horizontallyresearchpolar.com/r0wbx3kyf?key=8b0a2298684c7cea730312add326101b" 
+           class="block card p-3 rounded-lg border-dashed border-indigo-500 text-indigo-400 font-bold">
+            💰 Click Here for Unlimited Bonus 💰
+        </a>
+    </div>
 
-    function logout() {
-        document.getElementById('loginSection').style.display = 'block';
-        document.getElementById('userDashboard').style.display = 'none';
-        currentUserId = null;
-        currentUserData = null;
-    }
+    <div class="fixed bottom-0 left-0 w-full bg-slate-900/90 backdrop-blur-md p-4 flex justify-around border-t border-slate-800">
+        <i class="fas fa-home text-indigo-400 text-xl"></i>
+        <i class="fas fa-tasks text-gray-500 text-xl"></i>
+        <i class="fas fa-money-bill-transfer text-gray-500 text-xl"></i>
+        <i class="fas fa-cog text-gray-500 text-xl"></i>
+    </div>
 
-    // ====================== TELEGRAM LOGIN CALLBACK ======================
-    window.onTelegramAuth = function(user) {
-        // This is called by the Telegram Login Widget after successful login
-        currentUserId = user.id.toString();
-        document.getElementById('loginSection').style.display = 'none';
-        document.getElementById('userDashboard').style.display = 'block';
-        loadUserDashboard(currentUserId);
-    };
-
-    // ====================== INITIALIZE TELEGRAM WIDGET ======================
-    // We create the widget dynamically because we need to set the bot username.
-    (function() {
-        const script = document.createElement('script');
-        script.src = "https://telegram.org/js/telegram-widget.js?22";
-        script.setAttribute('data-telegram-login', 'YourBotUsername'); // 🔁 REPLACE
-        script.setAttribute('data-size', 'large');
-        script.setAttribute('data-request-access', 'write');
-        script.setAttribute('data-onauth', 'onTelegramAuth(user)');
-        document.getElementById('telegram-login').appendChild(script);
-    })();
-</script>
 </body>
 </html>
+
