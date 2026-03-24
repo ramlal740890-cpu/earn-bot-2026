@@ -1,10 +1,16 @@
 {
   "name": "earn-bot-2026",
   "version": "1.0.0",
+  "description": "Telegram Earning Bot with Vercel and Firebase",
   "main": "api/bot.js",
+  "scripts": {
+    "start": "node api/bot.js"
+  },
   "dependencies": {
     "telegraf": "^4.16.3",
-    "firebase-admin": "^12.0.0",
-    "dotenv": "^16.4.5"
+    "firebase-admin": "^12.0.0"
+  },
+  "engines": {
+    "node": "18.x"
   }
 }
