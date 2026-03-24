@@ -2,10 +2,9 @@ const { Telegraf, Markup } = require('telegraf');
 const { db } = require('../firebase');
 const adminLogic = require('../admin');
 
-// Token yahan nahi likhna, Vercel Settings mein daalna hai
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-// Admin functions ko load karna
+// Admin commands load karein
 adminLogic(bot);
 
 bot.start(async (ctx) => {
@@ -13,7 +12,6 @@ bot.start(async (ctx) => {
     const username = ctx.from.username || "User";
 
     try {
-        // User ko database mein save karna agar naya hai
         const userRef = db.collection('users').doc(userId);
         const doc = await userRef.get();
 
@@ -36,7 +34,6 @@ bot.start(async (ctx) => {
     }
 });
 
-// Vercel Webhook Handler
 module.exports = async (req, res) => {
     if (req.method === 'POST') {
         try {
@@ -47,6 +44,6 @@ module.exports = async (req, res) => {
             res.status(500).send('Error');
         }
     } else {
-        res.status(200).send('Bot is active!');
+        res.status(200).send('Bot is running...');
     }
 };
