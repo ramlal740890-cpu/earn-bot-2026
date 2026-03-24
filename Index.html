@@ -3,84 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrendBot Dashboard</title>
+    <title>Earn Bot 2026 Dashboard</title>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; text-align: center; }
-        .card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
-        h2 { color: #0088cc; }
-        .balance-box { background: #e3f2fd; padding: 15px; border-radius: 10px; margin: 20px 0; }
-        .balance-amount { font-size: 24px; font-weight: bold; color: #1976d2; }
-        .btn { display: block; width: 100%; padding: 12px; margin: 10px 0; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; }
-        .btn-withdraw { background-color: #4caf50; color: white; }
-        .btn-refer { background-color: #0088cc; color: white; }
-        .footer { margin-top: 20px; font-size: 12px; color: #666; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #121212; color: white; margin: 0; padding: 20px; text-align: center; }
+        .container { max-width: 400px; margin: auto; background: #1e1e1e; padding: 20px; border-radius: 20px; box-shadow: 0 0 20px rgba(0,0,0,0.5); border: 1px solid #333; }
+        .balance-card { background: linear-gradient(135deg, #0088cc, #005588); padding: 20px; border-radius: 15px; margin-bottom: 20px; }
+        .balance-label { font-size: 14px; opacity: 0.8; }
+        .balance-value { font-size: 32px; font-weight: bold; margin: 5px 0; }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn { background: #333; color: white; border: none; padding: 15px; border-radius: 12px; font-size: 14px; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .btn:active { transform: scale(0.95); }
+        .btn i { font-size: 20px; margin-bottom: 5px; }
+        .btn-main { grid-column: span 2; background: #0088cc; font-weight: bold; }
+        .status { margin-top: 15px; font-size: 12px; color: #aaa; }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <h2 id="userName">Namaste!</h2>
-        <p>Aapka Dashboard</p>
-
-        <div class="balance-box">
-            <div>Current Balance</div>
-            <div class="balance-amount">₹ <span id="balance">0.00</span></div>
-        </div>
-
-        <button class="btn btn-refer" onclick="copyReferLink()">🔗 Copy Refer Link</button>
-        <button class="btn btn-withdraw" onclick="requestWithdraw()">💸 Withdraw Money</button>
-
-        <div class="footer">
-            Trendmansun Brand &copy; 2026
-        </div>
+<div class="container">
+    <h3 id="welcomeMsg">Namaste!</h3>
+    
+    <div class="balance-card">
+        <div class="balance-label">Aapka Total Balance</div>
+        <div class="balance-value">₹ <span id="userBalance">0.00</span></div>
     </div>
 
-    <script>
-        // Telegram WebApp initialization
-        let tg = window.Telegram.WebApp;
-        tg.expand(); // Full screen open hoga
+    <div class="btn-grid">
+        <button class="btn btn-main" onclick="handleAction('DAILY_CLAIM')">🎁 Daily Bonus Claim</button>
+        <button class="btn" onclick="handleAction('VIDEO_REWARD')">📺 Watch Video</button>
+        <button class="btn" onclick="copyRefer()">🔗 Invite Friends</button>
+        <button class="btn" onclick="tg.close()">❌ Exit App</button>
+    </div>
 
-        document.getElementById('userName').innerText = "Namaste, " + (tg.initDataUnsafe.user.first_name || "User");
+    <div class="status" id="statusMsg">Firebase connecting...</div>
+</div>
 
-        // Firebase se data fetch karne ka logic yahan aayega (Next step)
-        function copyReferLink() {
-            let userId = tg.initDataUnsafe.user.id;
-            let link = "https://t.me/Trendmansun_bot?start=" + userId;
-            navigator.clipboard.writeText(link);
-            alert("Refer link copy ho gaya!");
-        }
+<script>
+    // 1. Firebase Configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyBxvacIBGHZdQ8HTgHLGku45oEHaVTyRt8",
+        authDomain: "earn-bot-2026.firebaseapp.com",
+        projectId: "earn-bot-2026",
+        storageBucket: "earn-bot-2026.firebasestorage.app",
+        messagingSenderId: "519698784421",
+        appId: "1:519698784421:web:c932e8ced59c4db1b06d4c"
+    };
 
-        function requestWithdraw() {
-            alert("Minimum withdrawal ₹100 hai.");
-        }
-    </script>
-</body>
-</html>
-            overlay.classList.remove('hidden');
-            frame.src = "https://horizontallyresearchpolar.com/r0wbx3kyf?key=8b0a2298684c7cea730312add326101b";
-            
-            let sec = 15;
-            const countdown = setInterval(() => {
-                sec--;
-                timerLabel.innerText = sec;
-                if(sec <= 0) {
-                    clearInterval(countdown);
-                    sendAction('VIDEO_REWARD');
-                }
-            }, 1000);
-        }
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-        function sendAction(type) {
-            tg.sendData(type);
-            tg.close();
-        }
+    // 2. Telegram WebApp Init
+    let tg = window.Telegram.WebApp;
+    tg.expand();
+    const userId = tg.initDataUnsafe?.user?.id?.toString() || "test_user";
+    const firstName = tg.initDataUnsafe?.user?.first_name || "Guest";
 
-        function shareBot() {
-            const link = `https://t.me/Trendmansun_bot?start=${user.id}`;
-            const text = encodeURIComponent("Bhai! Maine sirf video dekh kar points kamaye hain. Tu bhi try kar! 💸\nLink: ");
-            window.open(`https://t.me/share/url?url=${link}&text=${text}`, "_blank");
-        }
-    </script>
+    document.getElementById('welcomeMsg').innerText = `Namaste, ${firstName}!`;
+
+    // 3. Real-time Balance Sync
+    if (userId) {
+        db.collection("users").doc(userId).onSnapshot((doc) => {
+            if (doc.exists) {
+                document.getElementById('userBalance').innerText = doc.data().balance || 0;
+                document.getElementById('statusMsg').innerText = "✅ Data Synced Successfully";
+            } else {
+                document.getElementById('statusMsg').innerText = "❌ User account not found in DB";
+            }
+        });
+    }
+
+    // 4. Handle Actions (Send to Bot)
+    function handleAction(actionType) {
+        const data = JSON.stringify({ action: actionType });
+        tg.sendData(data); // Ye bot logic ko trigger karega
+        document.getElementById('statusMsg').innerText = "Processing request...";
+    }
+
+    function copyRefer() {
+        const link = `https://t.me/Earn_Cash_Rewards_bot?start=${userId}`;
+        navigator.clipboard.writeText(link);
+        alert("Refer link copy ho gaya!");
+    }
+</script>
+
 </body>
 </html>
