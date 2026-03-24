@@ -3,46 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Earn Bot 2026 Dashboard</title>
+    <title>Earn Bot 2026 - Dashboard</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #121212; color: white; margin: 0; padding: 20px; text-align: center; }
-        .container { max-width: 400px; margin: auto; background: #1e1e1e; padding: 20px; border-radius: 20px; box-shadow: 0 0 20px rgba(0,0,0,0.5); border: 1px solid #333; }
-        .balance-card { background: linear-gradient(135deg, #0088cc, #005588); padding: 20px; border-radius: 15px; margin-bottom: 20px; }
-        .balance-label { font-size: 14px; opacity: 0.8; }
-        .balance-value { font-size: 32px; font-weight: bold; margin: 5px 0; }
-        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .btn { background: #333; color: white; border: none; padding: 15px; border-radius: 12px; font-size: 14px; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .btn:active { transform: scale(0.95); }
-        .btn i { font-size: 20px; margin-bottom: 5px; }
-        .btn-main { grid-column: span 2; background: #0088cc; font-weight: bold; }
-        .status { margin-top: 15px; font-size: 12px; color: #aaa; }
+        :root { --bg: #0f172a; --card: #1e293b; --primary: #0ea5e9; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; margin: 0; padding: 15px; padding-bottom: 80px; }
+        .container { max-width: 450px; margin: auto; }
+        .card { background: var(--card); border-radius: 20px; padding: 20px; margin-bottom: 15px; border: 1px solid #334155; text-align: center; }
+        .balance-val { font-size: 36px; font-weight: bold; color: var(--primary); margin: 10px 0; }
+        .btn { width: 100%; padding: 15px; border-radius: 15px; border: none; font-weight: bold; cursor: pointer; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; color: white; }
+        .btn-claim { background: #22c55e; }
+        .btn-ad { background: #ef4444; }
+        .btn-req { background: linear-gradient(90deg, #0ea5e9, #2563eb); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        input { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #334155; border-radius: 10px; color: white; margin-bottom: 10px; box-sizing: border-box; }
+        
+        /* Sticky Ad Footer */
+        #footer-ad { position: fixed; bottom: 0; left: 0; width: 100%; background: #1e293b; padding: 12px; border-top: 2px solid var(--primary); text-align: center; z-index: 1000; }
+        #footer-ad a { color: var(--primary); text-decoration: none; font-weight: bold; font-size: 14px; }
+        #timer { color: #f59e0b; font-size: 13px; display: none; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h3 id="welcomeMsg">Namaste!</h3>
-    
-    <div class="balance-card">
-        <div class="balance-label">Aapka Total Balance</div>
-        <div class="balance-value">₹ <span id="userBalance">0.00</span></div>
+    <div class="card">
+        <h2 id="greet">Namaste!</h2>
+        <div style="font-size: 14px; opacity: 0.7;">Earn Bot 2026 Balance</div>
+        <div class="balance-val">₹<span id="bal">0</span></div>
     </div>
 
-    <div class="btn-grid">
-        <button class="btn btn-main" onclick="handleAction('DAILY_CLAIM')">🎁 Daily Bonus Claim</button>
-        <button class="btn" onclick="handleAction('VIDEO_REWARD')">📺 Watch Video</button>
-        <button class="btn" onclick="copyRefer()">🔗 Invite Friends</button>
-        <button class="btn" onclick="tg.close()">❌ Exit App</button>
+    <button class="btn btn-claim" id="claimBtn" onclick="startTask('DAILY_CLAIM')">
+        <i class="fas fa-gift"></i> Claim Daily 10 Points
+    </button>
+
+    <div class="card">
+        <div id="timer">Please wait <span id="sec">15</span> seconds...</div>
+        <button class="btn btn-ad" id="adBtn" onclick="startTask('VIDEO_REWARD')">
+            <i class="fas fa-play-circle"></i> Watch Ad (5 Points)
+        </button>
     </div>
 
-    <div class="status" id="statusMsg">Firebase connecting...</div>
+    <div class="card">
+        <input type="text" id="upi" placeholder="Enter UPI ID for withdrawal">
+        <button class="btn btn-req" onclick="withdraw()">
+            <i class="fas fa-wallet"></i> Request Withdrawal
+        </button>
+    </div>
+</div>
+
+<div id="footer-ad">
+    <a href="https://horizontallyresearchpolar.com/r0wbx3kyf?key=8b0a2298684c7cea730312add326101b" target="_blank">
+        🚀 Click here for Extra Bonus! (Sponsored)
+    </a>
 </div>
 
 <script>
-    // 1. Firebase Configuration
+    const SMART_LINK = "https://horizontallyresearchpolar.com/r0wbx3kyf?key=8b0a2298684c7cea730312add326101b";
+    
+    // Firebase Config
     const firebaseConfig = {
         apiKey: "AIzaSyBxvacIBGHZdQ8HTgHLGku45oEHaVTyRt8",
         authDomain: "earn-bot-2026.firebaseapp.com",
@@ -52,43 +74,58 @@
         appId: "1:519698784421:web:c932e8ced59c4db1b06d4c"
     };
 
-    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-
-    // 2. Telegram WebApp Init
-    let tg = window.Telegram.WebApp;
+    const tg = window.Telegram.WebApp;
     tg.expand();
-    const userId = tg.initDataUnsafe?.user?.id?.toString() || "test_user";
-    const firstName = tg.initDataUnsafe?.user?.first_name || "Guest";
 
-    document.getElementById('welcomeMsg').innerText = `Namaste, ${firstName}!`;
+    const uid = tg.initDataUnsafe?.user?.id?.toString() || "test_user";
 
-    // 3. Real-time Balance Sync
-    if (userId) {
-        db.collection("users").doc(userId).onSnapshot((doc) => {
-            if (doc.exists) {
-                document.getElementById('userBalance').innerText = doc.data().balance || 0;
-                document.getElementById('statusMsg').innerText = "✅ Data Synced Successfully";
-            } else {
-                document.getElementById('statusMsg').innerText = "❌ User account not found in DB";
+    // Live Balance Update
+    db.collection("users").doc(uid).onSnapshot((doc) => {
+        if (doc.exists) {
+            document.getElementById('bal').innerText = doc.data().balance || 0;
+            document.getElementById('greet').innerText = "Hi, " + (tg.initDataUnsafe?.user?.first_name || "User");
+        }
+    });
+
+    function startTask(type) {
+        window.open(SMART_LINK, '_blank');
+        let timeLeft = 15;
+        const btn = document.getElementById('adBtn');
+        const timerDiv = document.getElementById('timer');
+        const secSpan = document.getElementById('sec');
+
+        timerDiv.style.display = 'block';
+        document.getElementById('claimBtn').disabled = true;
+        btn.disabled = true;
+
+        const interval = setInterval(() => {
+            timeLeft--;
+            secSpan.innerText = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(interval);
+                timerDiv.style.display = 'none';
+                btn.disabled = false;
+                document.getElementById('claimBtn').disabled = false;
+                // Signal to bot for points
+                tg.sendData(JSON.stringify({ action: type }));
             }
+        }, 1000);
+    }
+
+    async function withdraw() {
+        const upiId = document.getElementById('upi').value;
+        if(!upiId.includes('@')) return alert("Sahi UPI ID dalein!");
+        
+        await db.collection("withdrawals").add({
+            userId: uid,
+            upi: upiId,
+            status: "Pending",
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
-    }
-
-    // 4. Handle Actions (Send to Bot)
-    function handleAction(actionType) {
-        const data = JSON.stringify({ action: actionType });
-        tg.sendData(data); // Ye bot logic ko trigger karega
-        document.getElementById('statusMsg').innerText = "Processing request...";
-    }
-
-    function copyRefer() {
-        const link = `https://t.me/Earn_Cash_Rewards_bot?start=${userId}`;
-        navigator.clipboard.writeText(link);
-        alert("Refer link copy ho gaya!");
+        alert("Withdrawal request sent! ✅");
     }
 </script>
-
 </body>
 </html>
