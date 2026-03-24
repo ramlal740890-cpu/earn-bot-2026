@@ -1,35 +1,39 @@
-# 🤖 Earn Bot 2026 — Refer & Earn Telegram Bot
+# 🚀 Earn Bot 2026 - Premium Earning Telegram Bot
 
-> **Production-ready Refer & Earn Telegram Bot** built with **Telegraf (Node.js)** and **Firebase Firestore**, deployed serverlessly on **Vercel**. Earn coins through daily bonuses, video ads, and referrals — then withdraw to real money!
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/YOUR_USERNAME/earn-bot-2026)
-
----
+Ye ek advanced Telegram Earning Bot hai jise **Vercel** aur **Firebase** ka use karke banaya gaya hai. Isme ek premium Web App Dashboard hai jahan users ads dekh kar aur daily bonus claim karke paise kama sakte hain.
 
 ## ✨ Features
+- 💎 **Premium UI:** Tailwind CSS se bana modern dashboard.
+- ⏱️ **15s Timer:** Ads watch karne par automatic point collection.
+- 💰 **Daily Bonus:** Har 24 ghante mein points claim karne ka system.
+- 💳 **Withdrawal:** Dashboard se hi UPI ID ke through payout request.
+- 📢 **Refer & Earn:** Friends ko invite karne par extra points.
+- 🛠️ **Firebase Backend:** User ka balance aur withdrawal data safe store hota hai.
 
-| Feature | Details |
-|---|---|
-| 🎁 Daily Bonus | 10 Coins every 24 hours |
-| 📺 Video Ad Task | 20 Coins per video watch (1-hour cooldown) |
-| 👥 Referral System | 50 Coins per successful referral via deep-link |
-| 💸 Withdrawal | Minimum 500 Coins to withdraw |
-| 📢 Sticky Ad | Sponsor ad in every main menu |
-| 🔒 Mandatory Withdrawal Ad | Ad click required before withdrawal |
-| 🔥 Firebase Firestore | Real-time balance, referral, timestamp tracking |
-| ☁️ Vercel Serverless | Auto-scaling, zero-config deployment |
+## 🛠️ Setup Instructions
 
----
+### 1. Firebase Setup
+- Ek naya Firebase project banayein.
+- **Firestore Database** enable karein aur rules mein `allow read, write: if true;` set karein.
+- **Service Account JSON** download karein (Project Settings > Service Accounts).
 
-## 🏗️ Tech Stack
+### 2. Vercel Deployment
+- GitHub repository ko Vercel se connect karein.
+- Niche diye gaye **Environment Variables** add karein:
+  - `BOT_TOKEN`: Aapka Telegram Bot Token (@BotFather se).
+  - `ADMIN_ID`: Aapka numerical Telegram ID.
+  - `FIREBASE_SERVICE_ACCOUNT`: Firebase JSON ka poora content (Minified).
 
-- **Runtime**: Node.js 18+
-- **Bot Framework**: [Telegraf v4](https://telegraf.js.org/)
-- **Database**: [Firebase Firestore](https://firebase.google.com/docs/firestore)
-- **Deployment**: [Vercel Serverless Functions](https://vercel.com/docs/functions)
-
----
+### 3. Webhook Set Karein
+Deploy hone ke baad niche di gayi link ko browser mein run karein:
+`https://api.telegram.org/bot<YOUR_TOKEN>/setWebhook?url=https://<YOUR_APP>.vercel.app/api/bot`
 
 ## 📁 Project Structure
+- `api/bot.js` - Main Telegram Bot logic.
+- `index.html` - Premium Web App Dashboard.
+- `package.json` - Dependencies aur scripts.
+- `.env.example` - Environment variables ka template.
 
-
+---
+**Developed by:** [Trendmansun](https://trendmansun.com/gst-app)  
+**YouTube:** [@Trendmansun](https://www.youtube.com/@Trendmansun)
