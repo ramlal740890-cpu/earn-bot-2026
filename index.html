@@ -1,131 +1,122 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Earn Bot 2026 - Dashboard</title>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <title>Earn Bot 2026 - Premium</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --bg: #0f172a; --card: #1e293b; --primary: #0ea5e9; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; margin: 0; padding: 15px; padding-bottom: 80px; }
-        .container { max-width: 450px; margin: auto; }
-        .card { background: var(--card); border-radius: 20px; padding: 20px; margin-bottom: 15px; border: 1px solid #334155; text-align: center; }
-        .balance-val { font-size: 36px; font-weight: bold; color: var(--primary); margin: 10px 0; }
-        .btn { width: 100%; padding: 15px; border-radius: 15px; border: none; font-weight: bold; cursor: pointer; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; color: white; }
-        .btn-claim { background: #22c55e; }
-        .btn-ad { background: #ef4444; }
-        .btn-req { background: linear-gradient(90deg, #0ea5e9, #2563eb); }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        input { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #334155; border-radius: 10px; color: white; margin-bottom: 10px; box-sizing: border-box; }
-        
-        /* Sticky Ad Footer */
-        #footer-ad { position: fixed; bottom: 0; left: 0; width: 100%; background: #1e293b; padding: 12px; border-top: 2px solid var(--primary); text-align: center; z-index: 1000; }
-        #footer-ad a { color: var(--primary); text-decoration: none; font-weight: bold; font-size: 14px; }
-        #timer { color: #f59e0b; font-size: 13px; display: none; margin-bottom: 10px; }
+        body { background: #0f172a; color: white; font-family: 'Inter', sans-serif; }
+        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .gradient-text { background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .btn-premium { transition: all 0.3s ease; transform: scale(1); }
+        .btn-premium:active { transform: scale(0.95); }
     </style>
 </head>
-<body>
+<body class="p-4">
 
-<div class="container">
-    <div class="card">
-        <h2 id="greet">Namaste!</h2>
-        <div style="font-size: 14px; opacity: 0.7;">Earn Bot 2026 Balance</div>
-        <div class="balance-val">₹<span id="bal">0</span></div>
+    <div class="text-center mb-6">
+        <h1 class="text-3xl font-bold gradient-text">Earn Bot 2026</h1>
+        <p class="italic text-gray-400 mt-2 text-sm" id="motivationText">"Sapne bade hain toh koshish bhi badi honi chahiye..."</p>
     </div>
 
-    <button class="btn btn-claim" id="claimBtn" onclick="startTask('DAILY_CLAIM')">
-        <i class="fas fa-gift"></i> Claim Daily 10 Points
-    </button>
+    <div class="glass-card rounded-3xl p-6 text-center shadow-2xl mb-6">
+        <p class="text-gray-400 text-sm uppercase tracking-widest">Aapka Balance</p>
+        <h2 class="text-5xl font-extrabold mt-2 text-white">₹<span id="balance">0</span></h2>
+    </div>
 
-    <div class="card">
-        <div id="timer">Please wait <span id="sec">15</span> seconds...</div>
-        <button class="btn btn-ad" id="adBtn" onclick="startTask('VIDEO_REWARD')">
-            <i class="fas fa-play-circle"></i> Watch Ad (5 Points)
+    <div class="space-y-4">
+        <button id="claimBtn" onclick="collectBonus()" class="btn-premium w-full bg-green-600 hover:bg-green-500 p-4 rounded-2xl flex items-center justify-between font-bold">
+            <span><i class="fas fa-gift mr-2"></i> Daily Bonus</span>
+            <span class="bg-white text-green-700 px-2 py-1 rounded-lg text-xs">+10</span>
+        </button>
+
+        <button id="adBtn" onclick="startAdTask()" class="btn-premium w-full bg-indigo-600 hover:bg-indigo-500 p-4 rounded-2xl flex items-center justify-between font-bold">
+            <span><i class="fas fa-play-circle mr-2"></i> Watch Premium Ad</span>
+            <span id="timer" class="hidden text-xs bg-red-500 px-2 py-1 rounded">Wait <span id="sec">15</span>s</span>
+            <span id="adPoints" class="bg-white text-indigo-700 px-2 py-1 rounded-lg text-xs">+5</span>
         </button>
     </div>
 
-    <div class="card">
-        <input type="text" id="upi" placeholder="Enter UPI ID for withdrawal">
-        <button class="btn btn-req" onclick="withdraw()">
-            <i class="fas fa-wallet"></i> Request Withdrawal
-        </button>
+    <div class="glass-card rounded-2xl p-4 mt-6">
+        <h3 class="text-sm font-semibold mb-3 text-gray-300">Withdrawal (UPI)</h3>
+        <input type="text" id="upiId" placeholder="Enter UPI ID (e.g. name@apl)" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3">
+        <button onclick="requestWithdraw()" class="w-full bg-blue-600 p-3 rounded-xl font-bold text-sm">Request Payout</button>
     </div>
-</div>
 
-<div id="footer-ad">
-    <a href="https://horizontallyresearchpolar.com/r0wbx3kyf?key=8b0a2298684c7cea730312add326101b" target="_blank">
-        🚀 Click here for Extra Bonus! (Sponsored)
-    </a>
-</div>
+    <div class="mt-8 border-t border-slate-800 pt-6">
+        <div class="bg-gradient-to-r from-purple-900 to-blue-900 p-4 rounded-2xl text-center">
+            <p class="text-xs font-bold mb-2 uppercase">Doston ko invite karein</p>
+            <p class="text-xs text-gray-300 mb-4">"Ghar baithe kamane ka mauka mat chhodo, aaj hi join karo!"</p>
+            <button onclick="shareLink()" class="bg-white text-black px-6 py-2 rounded-full font-bold text-sm hover:bg-gray-200">Share & Earn</button>
+        </div>
+    </div>
 
-<script>
-    const SMART_LINK = "https://horizontallyresearchpolar.com/r0wbx3kyf?key=8b0a2298684c7cea730312add326101b";
-    
-    // Firebase Config
-    const firebaseConfig = {
-        apiKey: "AIzaSyBxvacIBGHZdQ8HTgHLGku45oEHaVTyRt8",
-        authDomain: "earn-bot-2026.firebaseapp.com",
-        projectId: "earn-bot-2026",
-        storageBucket: "earn-bot-2026.firebasestorage.app",
-        messagingSenderId: "519698784421",
-        appId: "1:519698784421:web:c932e8ced59c4db1b06d4c"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const tg = window.Telegram.WebApp;
-    tg.expand();
-
-    const uid = tg.initDataUnsafe?.user?.id?.toString() || "test_user";
-
-    // Live Balance Update
-    db.collection("users").doc(uid).onSnapshot((doc) => {
-        if (doc.exists) {
-            document.getElementById('bal').innerText = doc.data().balance || 0;
-            document.getElementById('greet').innerText = "Hi, " + (tg.initDataUnsafe?.user?.first_name || "User");
-        }
-    });
-
-    function startTask(type) {
-        window.open(SMART_LINK, '_blank');
-        let timeLeft = 15;
-        const btn = document.getElementById('adBtn');
-        const timerDiv = document.getElementById('timer');
-        const secSpan = document.getElementById('sec');
-
-        timerDiv.style.display = 'block';
-        document.getElementById('claimBtn').disabled = true;
-        btn.disabled = true;
-
-        const interval = setInterval(() => {
-            timeLeft--;
-            secSpan.innerText = timeLeft;
-            if (timeLeft <= 0) {
-                clearInterval(interval);
-                timerDiv.style.display = 'none';
-                btn.disabled = false;
-                document.getElementById('claimBtn').disabled = false;
-                // Signal to bot for points
-                tg.sendData(JSON.stringify({ action: type }));
-            }
-        }, 1000);
-    }
-
-    async function withdraw() {
-        const upiId = document.getElementById('upi').value;
-        if(!upiId.includes('@')) return alert("Sahi UPI ID dalein!");
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
         
-        await db.collection("withdrawals").add({
-            userId: uid,
-            upi: upiId,
-            status: "Pending",
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        alert("Withdrawal request sent! ✅");
-    }
-</script>
+        const SMART_LINK = "https://www.profitablecpmrate.com/your-ad-link"; // Apna link yahan dalein
+        const quotes = [
+            "Mehnat ka phal aur bot ka paisa, dono zaroor milta hai!",
+            "Chhota start karo, par start zaroor karo.",
+            "Aaj ka task kal ki amiri hai.",
+            "Kismat ke bharose nahi, task ke bharose chalo."
+        ];
+
+        // Random Motivation Line
+        document.getElementById('motivationText').innerText = quotes[Math.floor(Math.random() * quotes.length)];
+
+        function startAdTask() {
+            window.open(SMART_LINK, '_blank');
+            let timeLeft = 15;
+            const btn = document.getElementById('adBtn');
+            const timer = document.getElementById('timer');
+            const sec = document.getElementById('sec');
+            const pointsLabel = document.getElementById('adPoints');
+
+            btn.disabled = true;
+            timer.classList.remove('hidden');
+            pointsLabel.classList.add('hidden');
+
+            const countdown = setInterval(() => {
+                timeLeft--;
+                sec.innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    timer.classList.add('hidden');
+                    pointsLabel.classList.remove('hidden');
+                    btn.disabled = false;
+                    
+                    // Bot ko message bhej raha hai points add karne ke liye
+                    tg.sendData(JSON.stringify({ action: 'ad_watch', points: 5 }));
+                    tg.showAlert("Mubarak ho! 5 Points add kar diye gaye hain.");
+                }
+            }, 1000);
+        }
+
+        function collectBonus() {
+            tg.sendData(JSON.stringify({ action: 'daily_bonus', points: 10 }));
+            document.getElementById('claimBtn').disabled = true;
+            document.getElementById('claimBtn').classList.add('opacity-50');
+            tg.showAlert("Daily 10 points collected!");
+        }
+
+        function requestWithdraw() {
+            const upi = document.getElementById('upiId').value;
+            if(!upi) return tg.showAlert("Please enter UPI ID");
+            tg.sendData(JSON.stringify({ action: 'withdraw', upi: upi }));
+            tg.showAlert("Withdrawal request sent!");
+        }
+
+        function shareLink() {
+            const userId = tg.initDataUnsafe.user.id;
+            const shareUrl = `https://t.me/Earn_Bot_2026_bot?start=${userId}`;
+            const text = encodeURIComponent("Bhai, iss bot se main daily kama raha hoon! Tu bhi try kar. Link: ");
+            window.open(`https://t.me/share/url?url=${shareUrl}&text=${text}`);
+        }
+    </script>
 </body>
 </html>
