@@ -7,11 +7,52 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        // ✅ Aapki Firebase Configuration set kar di hai
+        const firebaseConfig = {
+            apiKey: "AIzaSyBxvacIBGHZdQ8HTgHLGku45oEHaVTyRt8",
+            authDomain: "earn-bot-2026.firebaseapp.com",
+            projectId: "earn-bot-2026",
+            storageBucket: "earn-bot-2026.firebasestorage.app",
+            messagingSenderId: "519698784421",
+            appId: "1:519698784421:web:c932e8ced59c4db1b06d4c"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        // Get User ID from Telegram
+        const user = tg.initDataUnsafe.user;
+        const userId = user ? user.id.toString() : "test_user";
+
+        // 💰 Real-time Balance Fetching Logic
+        function loadUserData() {
+            db.collection("users").doc(userId).onSnapshot((doc) => {
+                if (doc.exists) {
+                    document.getElementById("balance").innerText = doc.data().balance || 0;
+                } else {
+                    document.getElementById("balance").innerText = "0";
+                }
+            }, (error) => {
+                console.error("Firebase Error:", error);
+            });
+        }
+
+        window.onload = loadUserData;
+    </script>
+
     <style>
-        body { background: #0f172a; color: white; font-family: 'Inter', sans-serif; }
+        body { background: #0f172a; color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
         .gradient-text { background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .btn-premium { transition: all 0.3s ease; transform: scale(1); }
+        .btn-premium { transition: all 0.3s ease; }
         .btn-premium:active { transform: scale(0.95); }
     </style>
 </head>
@@ -19,55 +60,47 @@
 
     <div class="text-center mb-6">
         <h1 class="text-3xl font-bold gradient-text">Earn Bot 2026</h1>
-        <p class="italic text-gray-400 mt-2 text-sm" id="motivationText">"Sapne bade hain toh koshish bhi badi honi chahiye..."</p>
+        <p class="italic text-gray-400 mt-2 text-sm" id="motivationText">"Mehnat ka phal aur bot ka paisa, dono zaroor milta hai!"</p>
     </div>
 
-    <div class="glass-card rounded-3xl p-6 text-center shadow-2xl mb-6">
-        <p class="text-gray-400 text-sm uppercase tracking-widest">Aapka Balance</p>
-        <h2 class="text-5xl font-extrabold mt-2 text-white">₹<span id="balance">0</span></h2>
+    <div class="glass-card rounded-3xl p-8 text-center shadow-2xl mb-6 relative">
+        <p class="text-gray-400 text-sm uppercase tracking-widest font-semibold">Aapka Balance</p>
+        <h2 class="text-6xl font-extrabold mt-3 text-white">₹<span id="balance">0</span></h2>
+        <div class="mt-4 flex justify-center gap-2 items-center text-green-400 text-xs font-bold">
+            <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Wallet Connected
+        </div>
     </div>
 
     <div class="space-y-4">
-        <button id="claimBtn" onclick="collectBonus()" class="btn-premium w-full bg-green-600 hover:bg-green-500 p-4 rounded-2xl flex items-center justify-between font-bold">
+        <button id="claimBtn" onclick="collectBonus()" class="btn-premium w-full bg-gradient-to-r from-green-600 to-emerald-600 p-5 rounded-2xl flex items-center justify-between font-bold">
             <span><i class="fas fa-gift mr-2"></i> Daily Bonus</span>
-            <span class="bg-white text-green-700 px-2 py-1 rounded-lg text-xs">+10</span>
+            <span class="bg-white text-green-700 px-3 py-1 rounded-xl text-xs font-black">+10</span>
         </button>
 
-        <button id="adBtn" onclick="startAdTask()" class="btn-premium w-full bg-indigo-600 hover:bg-indigo-500 p-4 rounded-2xl flex items-center justify-between font-bold">
+        <button id="adBtn" onclick="startAdTask()" class="btn-premium w-full bg-gradient-to-r from-indigo-600 to-violet-600 p-5 rounded-2xl flex items-center justify-between font-bold">
             <span><i class="fas fa-play-circle mr-2"></i> Watch Premium Ad</span>
-            <span id="timer" class="hidden text-xs bg-red-500 px-2 py-1 rounded">Wait <span id="sec">15</span>s</span>
-            <span id="adPoints" class="bg-white text-indigo-700 px-2 py-1 rounded-lg text-xs">+5</span>
+            <div id="timer" class="hidden text-xs bg-red-500 px-3 py-1 rounded-lg animate-pulse">Wait <span id="sec">15</span>s</div>
+            <span id="adPoints" class="bg-white text-indigo-700 px-3 py-1 rounded-xl text-xs font-black">+5</span>
         </button>
     </div>
 
-    <div class="glass-card rounded-2xl p-4 mt-6">
-        <h3 class="text-sm font-semibold mb-3 text-gray-300">Withdrawal (UPI)</h3>
-        <input type="text" id="upiId" placeholder="Enter UPI ID (e.g. name@apl)" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3">
-        <button onclick="requestWithdraw()" class="w-full bg-blue-600 p-3 rounded-xl font-bold text-sm">Request Payout</button>
+    <div class="glass-card rounded-2xl p-5 mt-6">
+        <h3 class="text-sm font-bold mb-4 text-gray-300">Withdraw (UPI)</h3>
+        <input type="text" id="upiId" placeholder="Enter UPI ID (e.g. name@apl)" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4 text-white">
+        <button onclick="requestWithdraw()" class="w-full bg-blue-600 hover:bg-blue-500 p-4 rounded-xl font-black text-sm uppercase tracking-widest transition-all">Request Payout</button>
     </div>
 
-    <div class="mt-8 border-t border-slate-800 pt-6">
-        <div class="bg-gradient-to-r from-purple-900 to-blue-900 p-4 rounded-2xl text-center">
-            <p class="text-xs font-bold mb-2 uppercase">Doston ko invite karein</p>
-            <p class="text-xs text-gray-300 mb-4">"Ghar baithe kamane ka mauka mat chhodo, aaj hi join karo!"</p>
-            <button onclick="shareLink()" class="bg-white text-black px-6 py-2 rounded-full font-bold text-sm hover:bg-gray-200">Share & Earn</button>
+    <div class="mt-8 mb-4 border-t border-slate-800 pt-6">
+        <div class="bg-gradient-to-br from-slate-800 to-slate-900 border border-blue-500/20 p-6 rounded-3xl text-center">
+            <p class="text-sm font-black mb-3 text-blue-400 uppercase italic">💸 Reward Alert</p>
+            <p class="text-sm text-gray-300 mb-5 leading-relaxed">"Ghar baithe kamane ka mauka mat chhodo, jitne zyada share utna zyada paisa!"</p>
+            <button onclick="shareLink()" class="bg-white text-black px-10 py-3 rounded-full font-black text-sm hover:bg-blue-50 transition-all">Share & Earn</button>
         </div>
     </div>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        
-        const https://horizontallyresearchpolar.com/r0wbx3kyf?key=8b0a2298684c7cea730312add326101b // Apna link yahan dalein
-        const quotes = [
-            "Mehnat ka phal aur bot ka paisa, dono zaroor milta hai!",
-            "Chhota start karo, par start zaroor karo.",
-            "Aaj ka task kal ki amiri hai.",
-            "Kismat ke bharose nahi, task ke bharose chalo."
-        ];
-
-        // Random Motivation Line
-        document.getElementById('motivationText').innerText = quotes[Math.floor(Math.random() * quotes.length)];
+        // ✅ Smart Link format fix kiya gaya hai
+        const SMART_LINK = "https://horizontallyresearchpolar.com/r0wbx3kyf?key=8b0a2298b84c7cea730312add326101b"; 
 
         function startAdTask() {
             window.open(SMART_LINK, '_blank');
@@ -90,7 +123,6 @@
                     pointsLabel.classList.remove('hidden');
                     btn.disabled = false;
                     
-                    // Bot ko message bhej raha hai points add karne ke liye
                     tg.sendData(JSON.stringify({ action: 'ad_watch', points: 5 }));
                     tg.showAlert("Mubarak ho! 5 Points add kar diye gaye hain.");
                 }
@@ -98,25 +130,4 @@
         }
 
         function collectBonus() {
-            tg.sendData(JSON.stringify({ action: 'daily_bonus', points: 10 }));
-            document.getElementById('claimBtn').disabled = true;
-            document.getElementById('claimBtn').classList.add('opacity-50');
-            tg.showAlert("Daily 10 points collected!");
-        }
-
-        function requestWithdraw() {
-            const upi = document.getElementById('upiId').value;
-            if(!upi) return tg.showAlert("Please enter UPI ID");
-            tg.sendData(JSON.stringify({ action: 'withdraw', upi: upi }));
-            tg.showAlert("Withdrawal request sent!");
-        }
-
-        function shareLink() {
-            const userId = tg.initDataUnsafe.user.id;
-            const shareUrl = `https://t.me/Earn_Bot_2026_bot?start=${userId}`;
-            const text = encodeURIComponent("Bhai, iss bot se main daily kama raha hoon! Tu bhi try kar. Link: ");
-            window.open(`https://t.me/share/url?url=${shareUrl}&text=${text}`);
-        }
-    </script>
-</body>
-</html>
+            tg.sendData(JSON.stringify({ action: 'daily_bonus', points:
