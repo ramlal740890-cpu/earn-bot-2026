@@ -12,7 +12,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
     <script>
-        // ✅ Aapki Firebase Configuration set kar di hai
+        // ✅ Aapki Asli Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBxvacIBGHZdQ8HTgHLGku45oEHaVTyRt8",
             authDomain: "earn-bot-2026.firebaseapp.com",
@@ -28,7 +28,7 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Get User ID from Telegram
+        // Get User ID
         const user = tg.initDataUnsafe.user;
         const userId = user ? user.id.toString() : "test_user";
 
@@ -49,7 +49,7 @@
     </script>
 
     <style>
-        body { background: #0f172a; color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        body { background: #0f172a; color: white; font-family: 'Inter', sans-serif; }
         .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
         .gradient-text { background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .btn-premium { transition: all 0.3s ease; }
@@ -63,44 +63,38 @@
         <p class="italic text-gray-400 mt-2 text-sm" id="motivationText">"Mehnat ka phal aur bot ka paisa, dono zaroor milta hai!"</p>
     </div>
 
-    <div class="glass-card rounded-3xl p-8 text-center shadow-2xl mb-6 relative">
+    <div class="glass-card rounded-3xl p-8 text-center shadow-2xl mb-6">
         <p class="text-gray-400 text-sm uppercase tracking-widest font-semibold">Aapka Balance</p>
         <h2 class="text-6xl font-extrabold mt-3 text-white">₹<span id="balance">0</span></h2>
-        <div class="mt-4 flex justify-center gap-2 items-center text-green-400 text-xs font-bold">
-            <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Wallet Connected
-        </div>
     </div>
 
     <div class="space-y-4">
-        <button id="claimBtn" onclick="collectBonus()" class="btn-premium w-full bg-gradient-to-r from-green-600 to-emerald-600 p-5 rounded-2xl flex items-center justify-between font-bold">
+        <button id="claimBtn" onclick="collectBonus()" class="btn-premium w-full bg-green-600 p-5 rounded-2xl flex items-center justify-between font-bold shadow-lg">
             <span><i class="fas fa-gift mr-2"></i> Daily Bonus</span>
             <span class="bg-white text-green-700 px-3 py-1 rounded-xl text-xs font-black">+10</span>
         </button>
 
-        <button id="adBtn" onclick="startAdTask()" class="btn-premium w-full bg-gradient-to-r from-indigo-600 to-violet-600 p-5 rounded-2xl flex items-center justify-between font-bold">
+        <button id="adBtn" onclick="startAdTask()" class="btn-premium w-full bg-indigo-600 p-5 rounded-2xl flex items-center justify-between font-bold shadow-lg">
             <span><i class="fas fa-play-circle mr-2"></i> Watch Premium Ad</span>
-            <div id="timer" class="hidden text-xs bg-red-500 px-3 py-1 rounded-lg animate-pulse">Wait <span id="sec">15</span>s</div>
+            <span id="timer" class="hidden text-xs bg-red-500 px-3 py-1 rounded-lg">Wait <span id="sec">15</span>s</span>
             <span id="adPoints" class="bg-white text-indigo-700 px-3 py-1 rounded-xl text-xs font-black">+5</span>
         </button>
     </div>
 
     <div class="glass-card rounded-2xl p-5 mt-6">
         <h3 class="text-sm font-bold mb-4 text-gray-300">Withdraw (UPI)</h3>
-        <input type="text" id="upiId" placeholder="Enter UPI ID (e.g. name@apl)" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4 text-white">
-        <button onclick="requestWithdraw()" class="w-full bg-blue-600 hover:bg-blue-500 p-4 rounded-xl font-black text-sm uppercase tracking-widest transition-all">Request Payout</button>
+        <input type="text" id="upiId" placeholder="Enter UPI ID (e.g. name@apl)" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-4 text-sm focus:outline-none mb-4">
+        <button onclick="requestWithdraw()" class="w-full bg-blue-600 p-4 rounded-xl font-black text-sm uppercase">Request Payout</button>
     </div>
 
-    <div class="mt-8 mb-4 border-t border-slate-800 pt-6">
-        <div class="bg-gradient-to-br from-slate-800 to-slate-900 border border-blue-500/20 p-6 rounded-3xl text-center">
-            <p class="text-sm font-black mb-3 text-blue-400 uppercase italic">💸 Reward Alert</p>
-            <p class="text-sm text-gray-300 mb-5 leading-relaxed">"Ghar baithe kamane ka mauka mat chhodo, jitne zyada share utna zyada paisa!"</p>
-            <button onclick="shareLink()" class="bg-white text-black px-10 py-3 rounded-full font-black text-sm hover:bg-blue-50 transition-all">Share & Earn</button>
-        </div>
+    <div class="mt-8 bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-3xl text-center shadow-xl">
+        <p class="text-xs font-black mb-3 text-blue-400 uppercase">Jitne zyada share utna zyada paisa!</p>
+        <button onclick="shareLink()" class="bg-white text-black px-10 py-3 rounded-full font-black text-sm hover:bg-gray-200 shadow-lg">Share & Earn</button>
     </div>
 
     <script>
-        // ✅ Smart Link format fix kiya gaya hai
-        const SMART_LINK = "https://horizontallyresearchpolar.com/r0wbx3kyf?key=8b0a2298b84c7cea730312add326101b"; 
+        // ✅ Aapka Asli Ad Link
+        const SMART_LINK = "https://horizontallyresearchpolar.com/r0wbx3kyf?key=8b0a2298b84c7cea730312add326101b";
 
         function startAdTask() {
             window.open(SMART_LINK, '_blank');
@@ -130,4 +124,24 @@
         }
 
         function collectBonus() {
-            tg.sendData(JSON.stringify({ action: 'daily_bonus', points:
+            tg.sendData(JSON.stringify({ action: 'daily_bonus', points: 10 }));
+            document.getElementById('claimBtn').disabled = true;
+            document.getElementById('claimBtn').classList.add('opacity-50');
+            tg.showAlert("Daily 10 points collected!");
+        }
+
+        function requestWithdraw() {
+            const upi = document.getElementById('upiId').value;
+            if(!upi) return tg.showAlert("Please enter UPI ID");
+            tg.sendData(JSON.stringify({ action: 'withdraw', upi: upi }));
+            tg.showAlert("Withdrawal request sent!");
+        }
+
+        function shareLink() {
+            const shareUrl = `https://t.me/Earn_Bot_2026_bot?start=${userId}`;
+            const text = encodeURIComponent("Bhai, iss bot se main daily kama raha hoon! Tu bhi join kar. Link: ");
+            window.open(`https://t.me/share/url?url=${shareUrl}&text=${text}`);
+        }
+    </script>
+</body>
+</html>
