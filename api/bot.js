@@ -1,70 +1,114 @@
 const { Telegraf } = require('telegraf');
 const admin = require('firebase-admin');
 
-// 1. Firebase Initialization (Safer & Error-Proof)
+// 1. Firebase Initialization (Bullet-Proof logic)
 if (!admin.apps.length) {
     try {
         admin.initializeApp({
             credential: admin.credential.cert({
                 projectId: "earn-bot-2026",
                 clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-                // Replace \n with actual newlines to avoid 'Invalid PEM key' error
-                privateKey: process.env.FIREBASE_PRIVATE_KEY ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') : undefined,
+                // Fixing the private key format for Vercel
+                privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
             })
         });
-        console.log("Firebase Admin Connected Successfully");
+        console.log("Firebase Connected");
     } catch (error) {
-        console.error("Firebase Initialization Error:", error.message);
+        console.error("Firebase Init Error:", error.message);
     }
 }
 
 const db = admin.firestore();
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-// 2. Start Command Logic
+// Anti-Spam Keywords
+const BANNED_KEYWORDS = ['vcc', 'crypto', 'pay', 'free money', '老板', 'hack'];
+
+// Helper: Captcha Generator
+function generateCaptcha() {
+    const n1 = Math.floor(Math.random() * 10) + 1;
+    const n2 = Math.floor(Math.random() * 10) + 1;
+    return { q: `${n1} + ${n2}`, a: n1 + n2 };
+}
+
+// 2. Start Command with Captcha & Referral
 bot.start(async (ctx) => {
     const userId = ctx.from.id.toString();
-    const referralId = ctx.startPayload || null;
+    const refId = ctx.startPayload || null;
+    const captcha = generateCaptcha();
 
     try {
-        const userRef = db.collection('users').doc(userId);
-        const doc = await userRef.get();
-
-        if (!doc.exists) {
-            // New User Entry
-            await userRef.set({
-                id: userId,
-                username: ctx.from.username || 'User',
-                name: ctx.from.first_name,
-                balance: 0,
-                referredBy: referralId,
-                createdAt: admin.firestore.FieldValue.serverTimestamp()
-            });
-
-            // If referred, give 5 points to the referrer
-            if (referralId) {
-                const refUserRef = db.collection('users').doc(referralId);
-                await refUserRef.update({
-                    balance: admin.firestore.FieldValue.increment(5)
-                });
-            }
-        }
-
-        ctx.reply(`🙏 Namaste ${ctx.from.first_name}!\n\nEarn Bot 2026 mein aapka swagat hai.\n\nNiche diye gaye button se Dashboard kholien aur kamana shuru karein!`, {
-            parse_mode: 'Markdown',
-            reply_markup: {
-                inline_keyboard: [
-                    [{ text: "🚀 Open Dashboard", web_app: { url: "https://earn-bot-2026.vercel.app" } }],
-                    [{ text: "📢 Join Channel", url: "https://t.me/Trendmansun" }]
-                ]
-            }
+        // Save captcha in temp collection
+        await db.collection('temp_users').doc(userId).set({
+            answer: captcha.a,
+            referredBy: refId,
+            timestamp: admin.firestore.FieldValue.serverTimestamp()
         });
+
+        ctx.reply(`🛡️ *Human Verification Required!*\n\nBhai, bot shuru karne ke liye niche diye sawal ka jawab dein:\n\n*${captcha.q} = ?*`, { parse_mode: 'Markdown' });
     } catch (e) {
-        console.error("Start Command Error:", e);
+        console.error("Start Error:", e);
     }
 });
 
-// 3. Handling Dashboard Data (Points & Withdraw)
+// 3. Main Message Handler (Captcha Verify + Anti-Spam)
+bot.on('text', async (ctx) => {
+    const userId = ctx.from.id.toString();
+    const text = ctx.message.text;
+
+    // A. Anti-Spam
+    if (/[\u4e00-\u9fa5]/.test(text) || BANNED_KEYWORDS.some(k => text.toLowerCase().includes(k))) {
+        return ctx.deleteMessage().catch(() => {});
+    }
+
+    // B. Captcha Check
+    const tempRef = db.collection('temp_users').doc(userId);
+    const tempDoc = await tempRef.get();
+
+    if (tempDoc.exists) {
+        const data = tempDoc.data();
+        if (parseInt(text) === data.answer) {
+            await tempRef.delete();
+            
+            const userRef = db.collection('users').doc(userId);
+            const userDoc = await userRef.get();
+
+            if (!userDoc.exists) {
+                // New User Creation
+                await userRef.set({
+                    id: userId,
+                    name: ctx.from.first_name,
+                    balance: 0,
+                    referredBy: data.referredBy,
+                    createdAt: admin.firestore.FieldValue.serverTimestamp()
+                });
+
+                // If referred, give 5 points to the referrer
+                if (data.referredBy) {
+                    const refUserRef = db.collection('users').doc(data.referredBy);
+                    await refUserRef.update({
+                        balance: admin.firestore.FieldValue.increment(5)
+                    }).catch(() => {});
+                }
+            }
+
+            ctx.reply(`✅ *Verification Successful!*\n\nAb aap niche diye gaye Dashboard se kamana shuru kar sakte hain.`, {
+                parse_mode: 'Markdown',
+                reply_markup: {
+                    inline_keyboard: [
+                        [{ text: "🚀 Open Dashboard", web_app: { url: "https://earn-bot-2026.vercel.app" } }],
+                        [{ text: "📢 Join Channel", url: "https://t.me/Trendmansun" }]
+                    ]
+                }
+            });
+        } else {
+            ctx.reply("❌ Galat Jawab! /start dabayein aur sahi jawab dein.");
+        }
+        return;
+    }
+});
+
+// 4. Web App Data (Daily Bonus & Ad Watch)
 bot.on('web_app_data', async (ctx) => {
     try {
         const data = JSON.parse(ctx.webAppData.data());
@@ -75,7 +119,7 @@ bot.on('web_app_data', async (ctx) => {
             await userRef.update({
                 balance: admin.firestore.FieldValue.increment(data.points)
             });
-            ctx.reply(`✅ Mubarak ho! Aapne ${data.points} points kamaye hain.`);
+            ctx.reply(`💰 *+${data.points} Points* aapke balance mein jod diye gaye hain!`, { parse_mode: 'Markdown' });
         } 
         
         else if (data.action === 'withdraw') {
@@ -85,29 +129,24 @@ bot.on('web_app_data', async (ctx) => {
                 status: 'pending',
                 timestamp: admin.firestore.FieldValue.serverTimestamp()
             });
-            ctx.reply(`💰 Withdrawal Request Received!\nUPI: \`${data.upi}\` \nStatus: Pending (24h)`, { parse_mode: 'Markdown' });
-            
-            // Send Alert to Admin
-            if(process.env.ADMIN_ID) {
-                bot.telegram.sendMessage(process.env.ADMIN_ID, `🔔 *New Withdrawal*\nUser: ${userId}\nUPI: ${data.upi}`, { parse_mode: 'Markdown' });
-            }
+            ctx.reply(`💸 *Withdrawal Request Sent!*\n\nUPI: \`${data.upi}\` \nStatus: 24h mein process ho jayega.`, { parse_mode: 'Markdown' });
         }
     } catch (e) {
         console.error("WebAppData Error:", e);
     }
 });
 
-// 4. Vercel Webhook Handler
+// 5. Vercel Webhook Handler
 module.exports = async (req, res) => {
     if (req.method === 'POST') {
         try {
             await bot.handleUpdate(req.body);
             res.status(200).send('OK');
         } catch (err) {
-            console.error('Bot Error:', err);
+            console.error('Bot Handler Error:', err);
             res.status(500).send('Internal Server Error');
         }
     } else {
-        res.status(200).send('<h1>Bot is running fine!</h1>');
+        res.status(200).send('Bot is active!');
     }
 };
