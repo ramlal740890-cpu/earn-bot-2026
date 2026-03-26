@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Earn Bot 2026 - Premium</title>
+    <title>Earn Bot 2026 | Trendmansun</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -11,8 +11,79 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap');
+        body { background: #070b14; color: white; font-family: 'Poppins', sans-serif; overflow-x: hidden; }
+        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; }
+        .gradient-btn { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); transition: 0.3s; }
+        .gradient-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .balance-glow { text-shadow: 0 0 20px rgba(168, 85, 247, 0.5); }
+    </style>
+</head>
+<body class="p-5">
+
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-xl font-extrabold tracking-tight">EARN BOT <span class="text-indigo-500">2026</span></h1>
+            <p class="text-[10px] text-gray-500 uppercase tracking-widest">Powered by Trendmansun</p>
+        </div>
+        <div class="bg-indigo-500/10 p-2 rounded-full">
+            <i class="fas fa-user-shield text-indigo-400"></i>
+        </div>
+    </div>
+
+    <div class="glass-card p-8 mb-8 text-center relative overflow-hidden">
+        <div class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-600/20 blur-3xl rounded-full"></div>
+        <p class="text-gray-400 text-xs font-medium mb-2 uppercase">Current Balance</p>
+        <div class="text-5xl font-black balance-glow">₹<span id="balance">0</span></div>
+    </div>
+
+    <div class="space-y-4">
+        <button id="claimBtn" onclick="collectBonus()" class="w-full flex items-center justify-between p-5 glass-card hover:bg-white/5 transition">
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center mr-4">
+                    <i class="fas fa-calendar-check text-green-400"></i>
+                </div>
+                <div class="text-left">
+                    <div class="text-sm font-bold">Daily Check-in</div>
+                    <div class="text-[10px] text-gray-400">Claim your daily reward</div>
+                </div>
+            </div>
+            <div class="text-green-400 font-bold">+10</div>
+        </button>
+
+        <button id="adBtn" onclick="startAdTask()" class="w-full flex items-center justify-between p-5 glass-card hover:bg-white/5 transition">
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-indigo-500/20 rounded-xl flex items-center justify-center mr-4">
+                    <i class="fas fa-play text-indigo-400" id="adIcon"></i>
+                    <span id="timerText" class="hidden text-xs font-bold text-indigo-400">15s</span>
+                </div>
+                <div class="text-left">
+                    <div class="text-sm font-bold">Premium Video Ad</div>
+                    <div class="text-[10px] text-gray-400" id="adSub">Watch & earn instantly</div>
+                </div>
+            </div>
+            <div id="adPoints" class="text-indigo-400 font-bold">+5</div>
+        </button>
+    </div>
+
+    <div class="mt-8">
+        <h3 class="text-xs font-bold text-gray-500 mb-4 uppercase ml-1">Withdrawal Hub</h3>
+        <div class="glass-card p-5">
+            <input type="text" id="upiId" placeholder="Enter UPI ID (e.g., name@okaxis)" 
+                   class="w-full bg-black/20 border border-white/5 rounded-xl p-4 text-sm mb-4 focus:outline-none focus:border-indigo-500 transition">
+            <button onclick="requestWithdraw()" class="w-full gradient-btn p-4 rounded-xl font-bold text-sm shadow-lg shadow-indigo-500/20">
+                REDEEM NOW
+            </button>
+        </div>
+    </div>
+
+    <p class="text-center text-[10px] text-gray-600 mt-10 italic" id="motivationText">
+        "Sapne bade hain toh koshish bhi badi honi chahiye!"
+    </p>
+
     <script>
-        // ✅ Aapki Asli Firebase Configuration
+        // ✅ YOUR FIREBASE CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyBxvacIBGHZdQ8HTgHLGku45oEHaVTyRt8",
             authDomain: "earn-bot-2026.firebaseapp.com",
@@ -22,103 +93,51 @@
             appId: "1:519698784421:web:c932e8ced59c4db1b06d4c"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Get User ID
-        const user = tg.initDataUnsafe.user;
-        const userId = user ? user.id.toString() : "test_user";
+        const userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id.toString() : "test_user";
+        const SMART_LINK = "https://horizontallyresearchpolar.com/r0wbx3kyf?key=8b0a2298b84c7cea730312add326101b";
 
-        // 💰 Real-time Balance Fetching Logic
-        function loadUserData() {
+        // Load Real-time Balance
+        function loadBalance() {
             db.collection("users").doc(userId).onSnapshot((doc) => {
                 if (doc.exists) {
                     document.getElementById("balance").innerText = doc.data().balance || 0;
-                } else {
-                    document.getElementById("balance").innerText = "0";
                 }
-            }, (error) => {
-                console.error("Firebase Error:", error);
             });
         }
+        window.onload = loadBalance;
 
-        window.onload = loadUserData;
-    </script>
-
-    <style>
-        body { background: #0f172a; color: white; font-family: 'Inter', sans-serif; }
-        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .gradient-text { background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .btn-premium { transition: all 0.3s ease; }
-        .btn-premium:active { transform: scale(0.95); }
-    </style>
-</head>
-<body class="p-4">
-
-    <div class="text-center mb-6">
-        <h1 class="text-3xl font-bold gradient-text">Earn Bot 2026</h1>
-        <p class="italic text-gray-400 mt-2 text-sm" id="motivationText">"Mehnat ka phal aur bot ka paisa, dono zaroor milta hai!"</p>
-    </div>
-
-    <div class="glass-card rounded-3xl p-8 text-center shadow-2xl mb-6">
-        <p class="text-gray-400 text-sm uppercase tracking-widest font-semibold">Aapka Balance</p>
-        <h2 class="text-6xl font-extrabold mt-3 text-white">₹<span id="balance">0</span></h2>
-    </div>
-
-    <div class="space-y-4">
-        <button id="claimBtn" onclick="collectBonus()" class="btn-premium w-full bg-green-600 p-5 rounded-2xl flex items-center justify-between font-bold shadow-lg">
-            <span><i class="fas fa-gift mr-2"></i> Daily Bonus</span>
-            <span class="bg-white text-green-700 px-3 py-1 rounded-xl text-xs font-black">+10</span>
-        </button>
-
-        <button id="adBtn" onclick="startAdTask()" class="btn-premium w-full bg-indigo-600 p-5 rounded-2xl flex items-center justify-between font-bold shadow-lg">
-            <span><i class="fas fa-play-circle mr-2"></i> Watch Premium Ad</span>
-            <span id="timer" class="hidden text-xs bg-red-500 px-3 py-1 rounded-lg">Wait <span id="sec">15</span>s</span>
-            <span id="adPoints" class="bg-white text-indigo-700 px-3 py-1 rounded-xl text-xs font-black">+5</span>
-        </button>
-    </div>
-
-    <div class="glass-card rounded-2xl p-5 mt-6">
-        <h3 class="text-sm font-bold mb-4 text-gray-300">Withdraw (UPI)</h3>
-        <input type="text" id="upiId" placeholder="Enter UPI ID (e.g. name@apl)" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-4 text-sm focus:outline-none mb-4">
-        <button onclick="requestWithdraw()" class="w-full bg-blue-600 p-4 rounded-xl font-black text-sm uppercase">Request Payout</button>
-    </div>
-
-    <div class="mt-8 bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-3xl text-center shadow-xl">
-        <p class="text-xs font-black mb-3 text-blue-400 uppercase">Jitne zyada share utna zyada paisa!</p>
-        <button onclick="shareLink()" class="bg-white text-black px-10 py-3 rounded-full font-black text-sm hover:bg-gray-200 shadow-lg">Share & Earn</button>
-    </div>
-
-    <script>
-        // ✅ Aapka Asli Ad Link
-        const SMART_LINK = "https://horizontallyresearchpolar.com/r0wbx3kyf?key=8b0a2298b84c7cea730312add326101b";
-
+        // Ad Task with 15s Timer
         function startAdTask() {
             window.open(SMART_LINK, '_blank');
             let timeLeft = 15;
             const btn = document.getElementById('adBtn');
-            const timer = document.getElementById('timer');
-            const sec = document.getElementById('sec');
-            const pointsLabel = document.getElementById('adPoints');
+            const icon = document.getElementById('adIcon');
+            const timerText = document.getElementById('timerText');
+            const sub = document.getElementById('adSub');
 
             btn.disabled = true;
-            timer.classList.remove('hidden');
-            pointsLabel.classList.add('hidden');
+            icon.classList.add('hidden');
+            timerText.classList.remove('hidden');
 
             const countdown = setInterval(() => {
                 timeLeft--;
-                sec.innerText = timeLeft;
+                timerText.innerText = timeLeft + "s";
+                sub.innerText = "Verifying view in " + timeLeft + "s...";
+                
                 if (timeLeft <= 0) {
                     clearInterval(countdown);
-                    timer.classList.add('hidden');
-                    pointsLabel.classList.remove('hidden');
+                    timerText.classList.add('hidden');
+                    icon.classList.remove('hidden');
                     btn.disabled = false;
+                    sub.innerText = "Watch & earn instantly";
                     
                     tg.sendData(JSON.stringify({ action: 'ad_watch', points: 5 }));
-                    tg.showAlert("Mubarak ho! 5 Points add kar diye gaye hain.");
+                    tg.showAlert("Success! 5 Points added.");
                 }
             }, 1000);
         }
@@ -126,21 +145,15 @@
         function collectBonus() {
             tg.sendData(JSON.stringify({ action: 'daily_bonus', points: 10 }));
             document.getElementById('claimBtn').disabled = true;
-            document.getElementById('claimBtn').classList.add('opacity-50');
-            tg.showAlert("Daily 10 points collected!");
+            document.getElementById('claimBtn').style.opacity = "0.3";
+            tg.showAlert("Daily bonus claimed!");
         }
 
         function requestWithdraw() {
             const upi = document.getElementById('upiId').value;
-            if(!upi) return tg.showAlert("Please enter UPI ID");
+            if(!upi.includes('@')) return tg.showAlert("Invalid UPI ID!");
             tg.sendData(JSON.stringify({ action: 'withdraw', upi: upi }));
-            tg.showAlert("Withdrawal request sent!");
-        }
-
-        function shareLink() {
-            const shareUrl = `https://t.me/Earn_Bot_2026_bot?start=${userId}`;
-            const text = encodeURIComponent("Bhai, iss bot se main daily kama raha hoon! Tu bhi join kar. Link: ");
-            window.open(`https://t.me/share/url?url=${shareUrl}&text=${text}`);
+            tg.showAlert("Withdrawal request sent to admin.");
         }
     </script>
 </body>
