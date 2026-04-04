@@ -3,158 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Earn Bot 2026 | Trendmansun</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>Earn Bot 2026 - Dashboard</title>
+    <!-- Tailwind CSS for Modern Design -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap');
-        body { background: #070b14; color: white; font-family: 'Poppins', sans-serif; overflow-x: hidden; }
-        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; }
-        .gradient-btn { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); transition: 0.3s; }
-        .gradient-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .balance-glow { text-shadow: 0 0 20px rgba(168, 85, 247, 0.5); }
+        body { 
+            background-color: #0f172a; 
+            color: white; 
+            font-family: 'Inter', sans-serif;
+            padding-bottom: 100px; /* Space for Social Bar Ads */
+        }
+        .glass { 
+            background: rgba(30, 41, 59, 0.7); 
+            backdrop-filter: blur(12px); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+        .btn-gradient {
+            background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-gradient:active { transform: scale(0.95); }
     </style>
 </head>
-<body class="p-5">
+<body class="p-4">
 
-    <div class="flex justify-between items-center mb-8">
-        <div>
-            <h1 class="text-xl font-extrabold tracking-tight">EARN BOT <span class="text-indigo-500">2026</span></h1>
-            <p class="text-[10px] text-gray-500 uppercase tracking-widest">Powered by Trendmansun</p>
-        </div>
-        <div class="bg-indigo-500/10 p-2 rounded-full">
-            <i class="fas fa-user-shield text-indigo-400"></i>
-        </div>
-    </div>
-
-    <div class="glass-card p-8 mb-8 text-center relative overflow-hidden">
-        <div class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-600/20 blur-3xl rounded-full"></div>
-        <p class="text-gray-400 text-xs font-medium mb-2 uppercase">Current Balance</p>
-        <div class="text-5xl font-black balance-glow">₹<span id="balance">0</span></div>
-    </div>
-
-    <div class="space-y-4">
-        <button id="claimBtn" onclick="collectBonus()" class="w-full flex items-center justify-between p-5 glass-card hover:bg-white/5 transition">
-            <div class="flex items-center">
-                <div class="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center mr-4">
-                    <i class="fas fa-calendar-check text-green-400"></i>
-                </div>
-                <div class="text-left">
-                    <div class="text-sm font-bold">Daily Check-in</div>
-                    <div class="text-[10px] text-gray-400">Claim your daily reward</div>
+    <div class="max-w-md mx-auto space-y-6 mt-4">
+        
+        <!-- Header / Balance Section -->
+        <div class="glass p-5 rounded-3xl flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">
+                    EARN BOT 2026
+                </h1>
+                <p class="text-[10px] text-gray-400 uppercase tracking-widest">User Dashboard</p>
+            </div>
+            <div class="text-right">
+                <span class="text-xs text-gray-400 block mb-1">Total Balance</span>
+                <div class="flex items-center justify-end gap-2">
+                    <i class="fas fa-coins text-yellow-400"></i>
+                    <span class="text-2xl font-mono font-bold text-yellow-400" id="balance">0.00</span>
                 </div>
             </div>
-            <div class="text-green-400 font-bold">+10</div>
-        </button>
+        </div>
 
-        <button id="adBtn" onclick="startAdTask()" class="w-full flex items-center justify-between p-5 glass-card hover:bg-white/5 transition">
-            <div class="flex items-center">
-                <div class="w-10 h-10 bg-indigo-500/20 rounded-xl flex items-center justify-center mr-4">
-                    <i class="fas fa-play text-indigo-400" id="adIcon"></i>
-                    <span id="timerText" class="hidden text-xs font-bold text-indigo-400">15s</span>
-                </div>
-                <div class="text-left">
-                    <div class="text-sm font-bold">Premium Video Ad</div>
-                    <div class="text-[10px] text-gray-400" id="adSub">Watch & earn instantly</div>
-                </div>
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-2 gap-4">
+            <div class="glass p-4 rounded-2xl text-center border-b-2 border-blue-500">
+                <i class="fas fa-user-friends text-blue-400 mb-1"></i>
+                <p class="text-[10px] text-gray-400 uppercase">Referrals</p>
+                <p class="text-lg font-bold" id="refer-count">0</p>
             </div>
-            <div id="adPoints" class="text-indigo-400 font-bold">+5</div>
-        </button>
-    </div>
+            <div class="glass p-4 rounded-2xl text-center border-b-2 border-emerald-500">
+                <i class="fas fa-check-circle text-emerald-400 mb-1"></i>
+                <p class="text-[10px] text-gray-400 uppercase">Tasks Done</p>
+                <p class="text-lg font-bold" id="task-count">0</p>
+            </div>
+        </div>
 
-    <div class="mt-8">
-        <h3 class="text-xs font-bold text-gray-500 mb-4 uppercase ml-1">Withdrawal Hub</h3>
-        <div class="glass-card p-5">
-            <input type="text" id="upiId" placeholder="Enter UPI ID (e.g., name@okaxis)" 
-                   class="w-full bg-black/20 border border-white/5 rounded-xl p-4 text-sm mb-4 focus:outline-none focus:border-indigo-500 transition">
-            <button onclick="requestWithdraw()" class="w-full gradient-btn p-4 rounded-xl font-bold text-sm shadow-lg shadow-indigo-500/20">
-                REDEEM NOW
+        <!-- Main Task Area -->
+        <div class="glass p-5 rounded-3xl space-y-4">
+            <h2 class="text-sm font-semibold text-blue-300 uppercase tracking-tighter mb-2 italic">Fast Tasks</h2>
+
+            <!-- Daily Check-in -->
+            <div class="flex justify-between items-center bg-slate-800/50 p-4 rounded-2xl border border-white/5">
+                <div class="flex items-center gap-3">
+                    <div class="bg-blue-500/20 p-2 rounded-lg"><i class="fas fa-calendar-day text-blue-400"></i></div>
+                    <span class="text-sm">Daily Bonus</span>
+                </div>
+                <button onclick="claimBonus()" id="bonusBtn" class="btn-gradient px-5 py-2 rounded-xl text-xs font-bold shadow-lg shadow-blue-500/20">Claim</button>
+            </div>
+
+            <!-- Smart Link Task -->
+            <div class="flex justify-between items-center bg-slate-800/50 p-4 rounded-2xl border border-yellow-500/20">
+                <div class="flex items-center gap-3">
+                    <div class="bg-yellow-500/20 p-2 rounded-lg"><i class="fas fa-bolt text-yellow-500"></i></div>
+                    <div>
+                        <span class="text-sm block">Smart Ad Task</span>
+                        <span class="text-[9px] text-yellow-500 font-bold uppercase">High Reward</span>
+                    </div>
+                </div>
+                <button onclick="watchSmartAd()" class="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-xl text-xs font-bold transition-all">Watch</button>
+            </div>
+        </div>
+
+        <!-- Withdraw Button -->
+        <div class="pt-2">
+            <button onclick="withdraw()" class="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-black py-4 rounded-2xl shadow-xl shadow-orange-500/20 flex items-center justify-center gap-3">
+                <i class="fas fa-wallet text-xl"></i> WITHDRAW NOW
             </button>
         </div>
+
+        <p class="text-center text-[10px] text-gray-500 uppercase tracking-widest">Verified by Adsterra & Google Cloud</p>
     </div>
 
-    <p class="text-center text-[10px] text-gray-600 mt-10 italic" id="motivationText">
-        "Sapne bade hain toh koshish bhi badi honi chahiye!"
-    </p>
-
+    <!-- MAIN JAVASCRIPT LOGIC -->
     <script>
-        // ✅ YOUR FIREBASE CONFIG
-        const firebaseConfig = {
-            apiKey: "AIzaSyBxvacIBGHZdQ8HTgHLGku45oEHaVTyRt8",
-            authDomain: "earn-bot-2026.firebaseapp.com",
-            projectId: "earn-bot-2026",
-            storageBucket: "earn-bot-2026.firebasestorage.app",
-            messagingSenderId: "519698784421",
-            appId: "1:519698784421:web:c932e8ced59c4db1b06d4c"
-        };
+        let currentBalance = 0.00;
+        let completedTasks = 0;
+        
+        // YOUR SMART LINK
+        const mySmartLink = "https://horizontallyresearchpolar.com/r0wbx3kyf?key=8b0a2298684c7cea730312add326101b";
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-
-        const userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id.toString() : "test_user";
-        const SMART_LINK = "https://horizontallyresearchpolar.com/r0wbx3kyf?key=8b0a2298b84c7cea730312add326101b";
-
-        // Load Real-time Balance
-        function loadBalance() {
-            db.collection("users").doc(userId).onSnapshot((doc) => {
-                if (doc.exists) {
-                    document.getElementById("balance").innerText = doc.data().balance || 0;
-                }
-            });
+        function updateDisplay() {
+            document.getElementById('balance').innerText = currentBalance.toFixed(2);
+            document.getElementById('task-count').innerText = completedTasks;
         }
-        window.onload = loadBalance;
 
-        // Ad Task with 15s Timer
-        function startAdTask() {
-            window.open(SMART_LINK, '_blank');
-            let timeLeft = 15;
-            const btn = document.getElementById('adBtn');
-            const icon = document.getElementById('adIcon');
-            const timerText = document.getElementById('timerText');
-            const sub = document.getElementById('adSub');
-
+        // Daily Bonus Logic
+        function claimBonus() {
+            currentBalance += 5.00;
+            completedTasks += 1;
+            updateDisplay();
+            
+            const btn = document.getElementById('bonusBtn');
+            btn.innerText = "CLAIMED";
             btn.disabled = true;
-            icon.classList.add('hidden');
-            timerText.classList.remove('hidden');
-
-            const countdown = setInterval(() => {
-                timeLeft--;
-                timerText.innerText = timeLeft + "s";
-                sub.innerText = "Verifying view in " + timeLeft + "s...";
-                
-                if (timeLeft <= 0) {
-                    clearInterval(countdown);
-                    timerText.classList.add('hidden');
-                    icon.classList.remove('hidden');
-                    btn.disabled = false;
-                    sub.innerText = "Watch & earn instantly";
-                    
-                    tg.sendData(JSON.stringify({ action: 'ad_watch', points: 5 }));
-                    tg.showAlert("Success! 5 Points added.");
-                }
-            }, 1000);
+            btn.classList.replace('btn-gradient', 'bg-gray-700');
+            alert("Success: +5.00 Coins added!");
         }
 
-        function collectBonus() {
-            tg.sendData(JSON.stringify({ action: 'daily_bonus', points: 10 }));
-            document.getElementById('claimBtn').disabled = true;
-            document.getElementById('claimBtn').style.opacity = "0.3";
-            tg.showAlert("Daily bonus claimed!");
+        // Smart Link Ad Logic
+        function watchSmartAd() {
+            // Open Smart Link
+            window.open(mySmartLink, '_blank');
+            alert("Ad is loading... Please wait 10 seconds on the ad page to receive points.");
+
+            // Add points after delay
+            setTimeout(() => {
+                currentBalance += 10.50;
+                completedTasks += 1;
+                updateDisplay();
+                alert("Task Complete: +10.50 Coins added to your wallet!");
+            }, 10000);
         }
 
-        function requestWithdraw() {
-            const upi = document.getElementById('upiId').value;
-            if(!upi.includes('@')) return tg.showAlert("Invalid UPI ID!");
-            tg.sendData(JSON.stringify({ action: 'withdraw', upi: upi }));
-            tg.showAlert("Withdrawal request sent to admin.");
+        // Withdraw Logic
+        function withdraw() {
+            if(currentBalance < 50) {
+                alert("Minimum withdrawal is 50.00 Coins. You need " + (50 - currentBalance).toFixed(2) + " more.");
+            } else {
+                alert("Withdrawal Request Sent! Payment will be processed within 24 hours.");
+            }
         }
     </script>
+
+    <!-- ADSTERRA SOCIAL BAR (Unit ID: 28954124) -->
+    <script type='text/javascript' src='//horizontallyresearchpolar.com/9a/47/32/9a47321583a45c36195e34749f7e5025.js'></script>
+
 </body>
 </html>
