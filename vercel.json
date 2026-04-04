@@ -1,19 +1,6 @@
 {
-  "version": 2,
   "rewrites": [
-    {
-      "source": "/",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/api/bot",
-      "destination": "/api/bot.js"
-    }
-  ],
-  "functions": {
-    "api/bot.js": {
-      "memory": 1024,
-      "maxDuration": 10
-    }
-  }
+    { "source": "/api/(.*)", "destination": "/api/bot.js" },
+    { "source": "/(.*)", "destination": "/$1" }
+  ]
 }
