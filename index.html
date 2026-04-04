@@ -3,102 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EarnPro 2026 | Official Dashboard</title>
-    <!-- CSS & Fonts -->
+    <title>EarnPro 2026 | Verified Earnings</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap');
-        body { background: #070b14; color: #fff; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
-        .premium-card { background: linear-gradient(145deg, #111827, #1f2937); border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .coin-text { background: linear-gradient(90deg, #facc15, #eab308); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .disabled-btn { background: #374151 !important; opacity: 0.6; cursor: not-allowed; pointer-events: none; }
-        .btn-animate:active { transform: scale(0.95); }
+        body { background: #070b14; color: #fff; font-family: 'Poppins', sans-serif; }
+        .premium-card { background: linear-gradient(145deg, #111827, #1f2937); border: 1px solid rgba(255,255,255,0.05); }
+        .disabled-btn { background: #374151 !important; opacity: 0.6; pointer-events: none; }
+        .verify-timer { animation: pulse 1s infinite; color: #facc15; font-weight: bold; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     </style>
 </head>
 <body class="pb-20">
 
-    <!-- Top Bar -->
-    <nav class="p-5 border-b border-white/5 flex justify-between items-center bg-[#070b14]/80 backdrop-blur-md sticky top-0 z-50">
-        <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center"><i class="fas fa-bolt text-sm"></i></div>
-            <span class="font-extrabold text-xl tracking-tighter uppercase">Earn<span class="text-blue-500">Pro</span></span>
-        </div>
-        <div id="userDisplayId" class="text-[10px] font-mono bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full border border-blue-500/20 tracking-wider">ID: ...</div>
+    <nav class="p-5 border-b border-white/5 flex justify-between items-center">
+        <span class="font-bold text-xl tracking-tighter uppercase">Earn<span class="text-blue-500">Pro</span></span>
+        <div id="userTag" class="text-[10px] bg-blue-500/20 px-3 py-1 rounded-full text-blue-400 font-mono">ID: ...</div>
     </nav>
 
     <div class="max-w-md mx-auto p-4 space-y-6">
         
-        <!-- Main Wallet Card -->
-        <div class="premium-card rounded-[2.5rem] p-10 text-center relative overflow-hidden">
-            <div class="absolute -top-10 -right-10 w-32 h-32 bg-blue-600/10 blur-3xl"></div>
-            <p class="text-gray-500 text-xs uppercase tracking-[0.2em] mb-2 font-semibold">Total Assets</p>
-            <h2 class="text-6xl font-black coin-text" id="balance">0.00</h2>
-            <div class="mt-4 inline-flex items-center gap-2 bg-white/5 px-4 py-1 rounded-full border border-white/5">
-                <i class="fas fa-info-circle text-[10px] text-gray-500"></i>
-                <span class="text-[10px] text-gray-400 uppercase tracking-tighter">Min. Withdraw: 200 Coins</span>
-            </div>
+        <!-- Balance Card -->
+        <div class="premium-card rounded-[2.5rem] p-10 text-center shadow-2xl">
+            <p class="text-gray-500 text-xs uppercase tracking-widest mb-1">Live Balance</p>
+            <h2 class="text-6xl font-black text-yellow-400" id="balance">0.00</h2>
+            <p class="text-[10px] text-gray-500 mt-3 italic">Withdraw Limit: 200 Coins</p>
         </div>
 
-        <!-- Referral Code Input (Only for new users) -->
-        <div id="referSection" class="premium-card p-5 rounded-3xl border border-blue-500/20 hidden">
-            <p class="text-xs font-bold text-blue-400 mb-3"><i class="fas fa-user-plus mr-2"></i>Have a Refer Code? Get +5 Coins</p>
-            <div class="flex gap-2">
-                <input type="text" id="referInput" placeholder="Enter EP-XXXX" class="bg-slate-900 border border-white/10 rounded-xl px-4 py-2 w-full text-sm outline-none focus:border-blue-500 uppercase">
-                <button onclick="submitReferral()" class="bg-blue-600 px-5 py-2 rounded-xl text-xs font-bold btn-animate shadow-lg shadow-blue-600/20">Apply</button>
-            </div>
-        </div>
-
-        <!-- Task List -->
+        <!-- Task Section -->
         <div class="space-y-4">
-            <h3 class="text-[10px] font-bold text-gray-500 px-2 tracking-[0.3em] uppercase">Missions Control</h3>
+            <h3 class="text-xs font-bold text-gray-500 px-2 tracking-widest">ACTIVE MISSIONS</h3>
             
-            <!-- Daily Bonus -->
-            <div class="premium-card p-4 rounded-2xl flex justify-between items-center group">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500 group-hover:scale-110 transition"><i class="fas fa-gift text-xl"></i></div>
-                    <div><p class="text-sm font-bold">Daily Reward</p><p class="text-[10px] text-blue-400 font-semibold">+5.00 Coins</p></div>
+            <!-- Video Ad Task -->
+            <div class="premium-card p-5 rounded-3xl border border-white/5 relative overflow-hidden">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-yellow-500/10 rounded-2xl flex items-center justify-center text-yellow-500"><i class="fas fa-play-circle text-2xl"></i></div>
+                        <div>
+                            <p class="font-bold text-sm">Watch & Verify</p>
+                            <p class="text-[10px] text-yellow-500">+10.00 Coins</p>
+                        </div>
+                    </div>
+                    <div id="adActionArea">
+                        <button onclick="startAdProcess()" id="watchBtn" class="bg-yellow-500 text-black px-6 py-2.5 rounded-xl text-xs font-black transition active:scale-95">Watch</button>
+                    </div>
                 </div>
-                <button onclick="claimDaily()" id="dailyBtn" class="bg-blue-600 px-6 py-2.5 rounded-xl text-xs font-bold btn-animate">Claim</button>
+                
+                <!-- Countdown Overlay (Hidden by default) -->
+                <div id="verifyOverlay" class="hidden mt-4 pt-4 border-t border-white/5 text-center">
+                    <p class="text-[11px] text-gray-400 mb-2">Verifying ad view... Stay on page</p>
+                    <div class="text-2xl verify-timer" id="vTimer">15s</div>
+                </div>
             </div>
 
-            <!-- Ad Video Task -->
-            <div class="premium-card p-4 rounded-2xl flex justify-between items-center group">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-yellow-500/10 rounded-2xl flex items-center justify-center text-yellow-500 group-hover:scale-110 transition"><i class="fas fa-play-circle text-xl"></i></div>
-                    <div><p class="text-sm font-bold">Smart Video Ad</p><p class="text-[10px] text-yellow-500 font-semibold">+10.00 Coins</p></div>
-                </div>
-                <div class="text-right">
-                    <button onclick="watchAd()" id="adBtn" class="bg-yellow-500 text-black px-6 py-2.5 rounded-xl text-xs font-bold btn-animate">Watch</button>
-                    <p id="adTimer" class="text-[9px] text-gray-500 mt-1 hidden italic">Next in: <span id="adCountdown">10:00</span></p>
-                </div>
-            </div>
-
-            <!-- Invite & Share Box -->
-            <div class="premium-card p-6 rounded-[2rem] border-2 border-dashed border-blue-500/30 text-center space-y-4">
-                <div class="space-y-1">
-                    <p class="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Share Your Code</p>
-                    <h4 class="text-2xl font-mono font-black text-blue-400 tracking-[0.2em]" id="myCodeLabel">EP-0000</h4>
-                </div>
-                <button onclick="shareLink()" class="w-full bg-blue-600/10 border border-blue-500/30 py-4 rounded-2xl text-blue-400 font-bold text-sm flex items-center justify-center gap-2 hover:bg-blue-600 hover:text-white transition-all">
-                    <i class="fas fa-paper-plane"></i> INVITE FRIENDS (+15)
+            <!-- Share & Refer -->
+            <div class="premium-card p-6 rounded-3xl border-2 border-dashed border-blue-500/30 text-center">
+                <p class="text-[10px] text-gray-500 mb-1 uppercase font-bold">Your Refer Code</p>
+                <h4 class="text-2xl font-mono font-black text-blue-400 tracking-widest mb-4" id="myCode">...</h4>
+                <button onclick="shareApp()" class="w-full bg-blue-600 py-4 rounded-2xl font-bold text-sm shadow-lg shadow-blue-600/20 active:scale-95 transition">
+                    <i class="fas fa-share-alt mr-2"></i> INVITE FRIENDS (+15)
                 </button>
             </div>
         </div>
 
-        <!-- Withdraw Button -->
-        <button onclick="handleWithdraw()" class="w-full bg-white text-black font-black py-5 rounded-2xl shadow-xl uppercase tracking-widest text-sm btn-animate">
-            <i class="fas fa-wallet mr-2"></i> Withdraw Funds
-        </button>
+        <!-- Withdraw -->
+        <button onclick="handleWithdraw()" class="w-full bg-white text-black font-black py-5 rounded-2xl uppercase tracking-widest active:scale-95 transition">Withdraw Funds</button>
     </div>
 
-    <!-- Firebase System -->
     <script>
-        // 1. CONFIGURATION
+        // 1. CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyCgydPo6mM6qmWP8vVW-l05SC1qtNXodV8",
             projectId: "earn-bot-2026",
@@ -108,103 +85,79 @@
         const db = firebase.database();
         const AD_URL = "https://horizontallyresearchpolar.com/r0wbx3kyf?key=8b0a2298684c7cea730312add326101b";
 
-        // 2. USER IDENTITY
-        let myId = localStorage.getItem('earn_user_id');
+        // 2. USER SYSTEM
+        let myId = localStorage.getItem('earn_id');
         if(!myId) {
             myId = "EP-" + Math.floor(1000 + Math.random() * 9000);
-            localStorage.setItem('earn_user_id', myId);
+            localStorage.setItem('earn_id', myId);
         }
-        document.getElementById('userDisplayId').innerText = "ID: " + myId;
-        document.getElementById('myCodeLabel').innerText = myId;
+        document.getElementById('userTag').innerText = "ID: " + myId;
+        document.getElementById('myCode').innerText = myId;
 
-        // 3. REAL-TIME DATA SYNC
-        db.ref('users/' + myId).on('value', (snapshot) => {
-            const data = snapshot.val() || { balance: 0, lastAd: 0, lastDaily: 0, refUsed: false };
+        // 3. SYNC BALANCE
+        db.ref('users/' + myId).on('value', (s) => {
+            const data = s.val() || { balance: 0, lastAd: 0 };
             document.getElementById('balance').innerText = data.balance.toFixed(2);
-            
-            // Show/Hide Refer Box
-            if(!data.refUsed) document.getElementById('referSection').classList.remove('hidden');
-            else document.getElementById('referSection').classList.add('hidden');
-
-            // Timers
-            updateTimers(data.lastAd, data.lastDaily);
+            checkCooldown(data.lastAd);
         });
 
-        // 4. FUNCTIONS
-        function claimDaily() {
+        // 4. AD PROCESS WITH 15s TIMER
+        function startAdProcess() {
+            // Open Ad in new tab
             window.open(AD_URL, '_blank');
-            db.ref('users/' + myId).update({
-                balance: firebase.database.ServerValue.increment(5),
-                lastDaily: firebase.database.ServerValue.TIMESTAMP
-            });
-            alert("Daily Bonus Claimed! +5 Coins");
+            
+            // Show verification timer
+            const watchBtn = document.getElementById('watchBtn');
+            const overlay = document.getElementById('verifyOverlay');
+            const vTimer = document.getElementById('vTimer');
+            
+            watchBtn.classList.add('hidden');
+            overlay.classList.remove('hidden');
+
+            let timeLeft = 15;
+            const timerInterval = setInterval(() => {
+                timeLeft--;
+                vTimer.innerText = timeLeft + "s";
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    // Show Claim Button
+                    document.getElementById('adActionArea').innerHTML = `<button onclick="claimAdPoints()" class="bg-green-600 text-white px-6 py-2.5 rounded-xl text-xs font-black animate-bounce">Claim 10 Coins</button>`;
+                    overlay.innerHTML = `<p class="text-green-500 font-bold text-xs">Ad Verified! Click Claim above.</p>`;
+                }
+            }, 1000);
         }
 
-        function watchAd() {
-            window.open(AD_URL, '_blank');
+        function claimAdPoints() {
             db.ref('users/' + myId).update({
                 balance: firebase.database.ServerValue.increment(10),
-                lastAd: firebase.database.ServerValue.TIMESTAMP
+                lastAd: Date.now()
             });
-            alert("Points Added! Wait 10 minutes for next ad.");
+            alert("Success! 10 Coins Added.");
+            // Reset button to Watch (but it will be disabled by cooldown)
+            location.reload(); 
         }
 
-        function submitReferral() {
-            const code = document.getElementById('referInput').value.trim().toUpperCase();
-            if(code === myId) return alert("Nice try! Can't use own code.");
-            
-            db.ref('users/' + code).once('value', (s) => {
-                if(s.exists()) {
-                    db.ref('users/' + myId).update({ balance: firebase.database.ServerValue.increment(5), refUsed: true });
-                    db.ref('users/' + code + '/balance').set(firebase.database.ServerValue.increment(15));
-                    alert("Success! Referral Points Shared.");
-                } else {
-                    alert("Invalid Code!");
-                }
-            });
-        }
-
-        function updateTimers(lastAd, lastDaily) {
+        function checkCooldown(lastAd) {
             const now = Date.now();
-            
-            // Ad Timer (10 Min)
-            const adDiff = (lastAd + 600000) - now;
-            const adBtn = document.getElementById('adBtn');
-            const adT = document.getElementById('adTimer');
-            if(adDiff > 0) {
-                adBtn.disabled = true; adBtn.classList.add('disabled-btn');
-                adT.classList.remove('hidden');
-                document.getElementById('adCountdown').innerText = Math.ceil(adDiff/60000) + "m";
-            } else {
-                adBtn.disabled = false; adBtn.classList.remove('disabled-btn'); adT.classList.add('hidden');
-            }
-
-            // Daily Timer (24 Hr)
-            const dDiff = (lastDaily + 86400000) - now;
-            const dBtn = document.getElementById('dailyBtn');
-            if(dDiff > 0) {
-                dBtn.disabled = true; dBtn.classList.add('disabled-btn');
-                const hrs = Math.floor(dDiff/3600000);
-                dBtn.innerText = hrs + "h Left";
-            } else {
-                dBtn.disabled = false; dBtn.classList.remove('disabled-btn'); dBtn.innerText = "Claim";
+            const diff = (lastAd + 600000) - now; // 10 min
+            if(diff > 0) {
+                const btn = document.getElementById('watchBtn');
+                btn.disabled = true;
+                btn.classList.add('disabled-btn');
+                btn.innerText = Math.ceil(diff/60000) + "m Left";
             }
         }
 
-        function shareLink() {
-            const text = `Earn Real Money 2026! 💰 Use my Refer Code [${myId}] to get 5 Coins instantly. Join here: ${window.location.href}`;
+        function shareApp() {
+            const text = `Join EarnPro 2026! Use my code ${myId} for 5 Coins. Link: ${window.location.href}`;
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
         }
 
-        function handleWithdraw() {
-            db.ref('users/' + myId + '/balance').once('value', (s) => {
-                if(s.val() >= 200) alert("Withdrawal Request Sent! Admin will check.");
-                else alert("Minimum 200 Coins Required!");
-            });
-        }
+        function handleWithdraw() { alert("Min. 200 Coins required!"); }
     </script>
 
-    <!-- Adsterra Social Bar -->
+    <!-- Social Bar -->
     <script type='text/javascript' src='//horizontallyresearchpolar.com/9a/47/32/9a47321583a45c36195e34749f7e5025.js'></script>
 </body>
 </html>
