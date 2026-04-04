@@ -1,130 +1,112 @@
 const { Telegraf, Markup } = require('telegraf');
 const admin = require('firebase-admin');
 
-// Firebase Initialization (Singleton Pattern)
+// 1. FIREBASE INITIALIZATION
 if (!admin.apps.length) {
     admin.initializeApp({
         credential: admin.credential.cert({
-            projectId: process.env.FIREBASE_PROJECT_ID || "earn-bot-2026",
-            clientEmail: process.env.FIREBASE_CLIENT_EMAIL || "firebase-adminsdk-fbsvc@earn-bot-2026.iam.gserviceaccount.com",
-            privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+            projectId: "earn-bot-2026",
+            clientEmail: "firebase-adminsdk-fbsvc@earn-bot-2026.iam.gserviceaccount.com",
+            // Private key ko Vercel Environment se hi uthana safe hai
+            privateKey: process.env.FIREBASE_PRIVATE_KEY ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') : "",
         })
     });
 }
 
 const db = admin.firestore();
-const bot = new Telegraf(process.env.BOT_TOKEN);
+
+// 2. BOT TOKEN DIRECTLY INSERTED (Aapka Token)
+const bot = new Telegraf("8784543392:AAEybNnS-v5VUdwB1jNeK38bU3EFCds99-w");
 const DASHBOARD_URL = "https://earn-bot-2026.vercel.app";
 
 // Verification Question Generator
 function getCaptcha() {
-    const a = Math.floor(Math.random() * 15) + 1;
-    const b = Math.floor(Math.random() * 10) + 1;
+    const a = Math.floor(Math.random() * 10) + 2;
+    const b = Math.floor(Math.random() * 8) + 1;
     return { question: `${a} + ${b}`, answer: a + b };
 }
 
-// Start Command
+// START COMMAND
 bot.start(async (ctx) => {
     const userId = ctx.from.id.toString();
     const refId = ctx.startPayload || null;
     const captcha = getCaptcha();
 
-    // Store captcha in temporary 'verifying' collection
-    await db.collection('verifying').doc(userId).set({
-        ans: captcha.answer,
-        ref: refId,
-        createdAt: admin.firestore.FieldValue.serverTimestamp()
-    });
+    try {
+        await db.collection('verifying').doc(userId).set({
+            ans: captcha.answer,
+            ref: refId,
+            createdAt: admin.firestore.FieldValue.serverTimestamp()
+        });
 
-    const welcomeMsg = `🚀 *Welcome to EarnPro 2026!* \n\n` +
-                       `Bhai, robot verification ke liye niche diye sawal ka sahi jawab dein:\n\n` +
-                       `📝 *Sawal:* What is ${captcha.question}?`;
-
-    return ctx.replyWithMarkdown(welcomeMsg);
+        return ctx.replyWithMarkdown(
+            `🚀 *Welcome to EarnPro 2026!*\n\n` +
+            `Bhai, robot verification ke liye iska jawab dein:\n\n` +
+            `📝 *Sawal:* ${captcha.question} = ?`
+        );
+    } catch (e) {
+        console.error("DB Error:", e);
+        return ctx.reply("System busy hai, thodi der baad koshish karein.");
+    }
 });
 
-// Handling Captcha & Messages
+// HANDLING MESSAGES
 bot.on('text', async (ctx) => {
     const userId = ctx.from.id.toString();
     const text = ctx.message.text.trim();
+    
     const verifyRef = db.collection('verifying').doc(userId);
     const verifyDoc = await verifyRef.get();
 
     if (verifyDoc.exists) {
         const data = verifyDoc.data();
         if (parseInt(text) === data.ans) {
-            await verifyRef.delete(); // Delete captcha after success
+            await verifyRef.delete();
 
             const userRef = db.collection('users').doc(userId);
             const userDoc = await userRef.get();
 
             if (!userDoc.exists) {
-                // New User Registration
                 await userRef.set({
                     id: userId,
-                    name: ctx.from.first_name,
+                    name: ctx.from.first_name || "User",
                     balance: 0,
                     referredBy: data.ref,
                     joinedAt: admin.firestore.FieldValue.serverTimestamp()
                 });
 
-                // Referral Bonus Logic
                 if (data.ref && data.ref !== userId) {
                     await db.collection('users').doc(data.ref).update({
-                        balance: admin.firestore.FieldValue.increment(5) // Referral bonus
-                    }).catch(e => console.log("Ref Error:", e));
+                        balance: admin.firestore.FieldValue.increment(5)
+                    }).catch(() => {});
                 }
             }
 
-            // Success Message with Buttons
             return ctx.replyWithMarkdown(
-                `🎉 *Sahi Jawab! Aapka Account Verify Ho Gaya Hai.*\n\n` +
-                `💰 Ab aap Daily Tasks aur Ads dekh kar kama sakte hain.\n\n` +
-                `🔥 *"Sapne dekhne se pure nahi hote, unke liye mehnat karni padti hai. Shuruat aaj se karein!"*`,
+                `🎉 *Sahi Jawab! Account Verify Ho Gaya.*\n\n` +
+                `💰 Ab niche button daba kar kamayi shuru karein.\n\n` +
+                `🔥 *"Mehnat ka phal aur mehnat ka paisa, dono hi sabse meethe hote hain. Lage raho!"*`,
                 Markup.inlineKeyboard([
-                    [Markup.button.webApp("🚀 Open Dashboard", DASHBOARD_URL)],
-                    [Markup.button.url("📢 Join Channel", "https://t.me/yourchannel")]
+                    [Markup.button.webApp("🚀 Open Dashboard", DASHBOARD_URL)]
                 ])
             );
         } else {
-            return ctx.reply("❌ *Galat Jawab!* Kripya sahi calculation karke bhejein.", { parse_mode: 'Markdown' });
+            return ctx.reply("❌ *Galat Jawab!* Phir se koshish karein.");
         }
     }
 });
 
-// Withdrawal & Data Handling from WebApp
-bot.on('web_app_data', async (ctx) => {
-    try {
-        const data = JSON.parse(ctx.webAppData.data());
-        const userId = ctx.from.id.toString();
-        const userRef = db.collection('users').doc(userId);
-
-        if (data.action === 'withdraw') {
-            await db.collection('withdrawals').add({
-                userId,
-                upi: data.upi,
-                amount: data.amount,
-                status: 'pending',
-                timestamp: admin.firestore.FieldValue.serverTimestamp()
-            });
-            return ctx.replyWithMarkdown(`✅ *Withdrawal Request Received!*\n\n💰 Amount: ₹${data.amount}\n🏦 UPI: ${data.upi}\n🕒 24-48 hours mein payment mil jayega.`);
-        }
-    } catch (e) {
-        console.error("WebAppData Error:", e);
-    }
-});
-
-// Vercel Serverless Handler
+// VERCEL HANDLER
 module.exports = async (req, res) => {
     try {
         if (req.method === 'POST') {
             await bot.handleUpdate(req.body);
             res.status(200).send('OK');
         } else {
-            res.status(200).send('Bot is Running...');
+            res.status(200).send('Bot Status: Online');
         }
     } catch (err) {
-        console.error("Handler Error:", err);
+        console.error("Bot Error:", err);
         res.status(500).send('Error');
     }
 };
